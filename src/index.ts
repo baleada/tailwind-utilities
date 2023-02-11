@@ -17,6 +17,7 @@ export function toDimensionTheme (dimension: Record<string | number, string>): {
 
 const defaultOptions: UtilitiesOptions = {
   only: ['center', 'dimension'],
+  except: [],
 }
 
 /**
