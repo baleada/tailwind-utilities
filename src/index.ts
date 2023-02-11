@@ -5,7 +5,7 @@ export type UtilitiesOptions = {
   except?: Utility[],
 }
 
-export type Utility = 'center' | 'dimension'
+export type Utility = 'center' | 'corner' | 'edge' | 'dimension'
 
 export function defineDimensionConfig (dimension: Record<string | number, string>): Record<string | number, string> {
   return dimension
@@ -16,7 +16,7 @@ export function toDimensionTheme (dimension: Record<string | number, string>): {
 }
 
 const defaultOptions: UtilitiesOptions = {
-  only: ['center', 'dimension'],
+  only: ['center', 'corner', 'edge', 'dimension'],
   except: [],
 }
 
@@ -32,17 +32,20 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
     if (utilities.includes('center')) {
       addUtilities({
         '.center': {
-          '&:where(.flex > &)': apply('m-auto'),
+          '&:where(.flex:not(.flex-col) > &)': apply('self-center mx-auto'),
+          '&:where(.flex.flex-col > &)': apply('self-center my-auto'),
           '&:where(.grid > &)': apply('place-self-center'),
           '&:where(.absolute)': apply('top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2'),
         },
         '.center-x': {
-          '&:where(.flex > &)': apply('mx-auto'),
+          '&:where(.flex:not(.flex-col) > &)': apply('mx-auto'),
+          '&:where(.flex.flex-col > &)': apply('self-center'),
           '&:where(.grid > &)': apply('justify-self-center'),
           '&:where(.absolute)': apply('left-1/2 -translate-x-1/2'),
         },
         '.center-y': {
-          '&:where(.flex > &)': apply('my-auto'),
+          '&:where(.flex:not(.flex-col) > &)': apply('self-center'),
+          '&:where(.flex.flex-col > &)': apply('my-auto'),
           '&:where(.grid > &)': apply('self-center'),
           '&:where(.absolute)': apply('top-1/2 -translate-y-1/2'),
         },
@@ -59,7 +62,102 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
           '&:where(.grid)': apply('items-center'),
           '&:where(.flex:not(.flex-col))': apply('items-center'),
           '&:where(.flex.flex-col)': apply('justify-center'),
+        },        
+      })
+    }
+
+    if (utilities.includes('corner')) {
+      addUtilities({
+        '.corner-t-l': {
+          '&:where(.flex > &)': apply('self-start'),
+          '&:where(.grid > &)': apply('place-self-start'),
+          '&:where(.absolute)': apply('top-0 left-0'),
         },
+        '.corner-t-r': {
+          '&:where(.flex:not(.flex-col) > &)': apply('self-start ml-auto'),
+          '&:where(.flex.flex-col > &)': apply('self-end'),
+          '&:where(.grid > &)': apply('self-start ml-auto'),
+          '&:where(.absolute)': apply('top-0 right-0'),
+        },
+        '.corner-b-r': {
+          '&:where(.flex:not(.flex-col) > &)': apply('self-end ml-auto'),
+          '&:where(.flex.flex-col > &)': apply('self-end mt-auto'),
+          '&:where(.grid > &)': apply('place-self-end'),
+          '&:where(.absolute)': apply('bottom-0 right-0'),
+        },
+        '.corner-b-l': {
+          '&:where(.flex:not(.flex-col) > &)': apply('self-end'),
+          '&:where(.flex.flex-col > &)': apply('self-start mt-auto'),
+          '&:where(.grid > &)': apply('self-end'),
+          '&:where(.absolute)': apply('bottom-0 left-0'),
+        },
+        '.corner-all-t-l': {
+          '&:where(.flex)': apply('items-start justify-start'),
+          '&:where(.grid)': apply('place-items-start'),
+        },
+        '.corner-all-t-r': {
+          '&:where(.flex:not(.flex-col))': apply('items-start justify-end'),
+          '&:where(.flex.flex-col)': apply('items-end justify-start'),
+          '&:where(.grid)': apply('items-start place-items-end'),
+        },
+        '.corner-all-b-r': {
+          '&:where(.flex)': apply('items-end justify-end'),
+          '&:where(.grid)': apply('place-items-end'),
+        },
+        '.corner-all-b-l': {
+          '&:where(.flex:not(.flex-col))': apply('items-end justify-start'),
+          '&:where(.flex.flex-col)': apply('items-start justify-end'),
+          '&:where(.grid)': apply('items-end place-items-start'),
+        },
+      })
+    }
+
+    if (utilities.includes('edge')) {
+      addUtilities({
+        '.edge-t': {
+          '&:where(.flex:not(.flex-col) > &)': apply('mx-auto'),
+          '&:where(.flex.flex-col > &)': apply('self-center'),
+          '&:where(.grid > &)': apply('justify-self-center'),
+          '&:where(.absolute)': apply('left-1/2 -translate-x-1/2'),
+        },
+        '.edge-r': {
+          '&:where(.flex:not(.flex-col) > &)': apply('self-center ml-auto'),
+          '&:where(.flex.flex-col > &)': apply('self-end my-auto'),
+          '&:where(.grid > &)': apply('self-center place-self-end'),
+          '&:where(.absolute)': apply('top-1/2 -translate-y-1/2 right-0'),
+        },
+        '.edge-b': {
+          '&:where(.flex:not(.flex-col) > &)': apply('self-end mx-auto'),
+          '&:where(.flex.flex-col > &)': apply('self-center mt-auto'),
+          '&:where(.grid > &)': apply('self-end justify-self-center'),
+          '&:where(.absolute)': apply('bottom-0 left-1/2 -translate-x-1/2'),
+        },
+        '.edge-l': {
+          '&:where(.flex:not(.flex-col) > &)': apply('self-center'),
+          '&:where(.flex.flex-col > &)': apply('my-auto'),
+          '&:where(.grid > &)': apply('self-center'),
+          '&:where(.absolute)': apply('left-0 top-1/2 -translate-y-1/2'),
+        },
+        '.edge-all-t': {
+          '&:where(.grid)': apply('justify-items-center'),
+          '&:where(.flex:not(.flex-col))': apply('justify-center'),
+          '&:where(.flex.flex-col)': apply('items-center'),
+        },
+        '.edge-all-r': {
+          '&:where(.grid)': apply('items-center place-items-end'),
+          '&:where(.flex:not(.flex-col))': apply('items-center justify-end'),
+          '&:where(.flex.flex-col)': apply('items-end justify-center'),
+        },
+        '.edge-all-b': {
+          '&:where(.grid)': apply('justify-items-center place-items-end'),
+          '&:where(.flex:not(.flex-col))': apply('justify-center items-end'),
+          '&:where(.flex.flex-col)': apply('items-center justify-end'),
+        },
+        '.edge-all-l': {
+          '&:where(.grid)': apply('items-center'),
+          '&:where(.flex:not(.flex-col))': apply('items-center'),
+          '&:where(.flex.flex-col)': apply('justify-center'),
+        },    
       })
     }
 
@@ -82,6 +180,8 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
     }
   }
 })
+
+export default plugin
 
 export function apply (classes: string): { [apply: `@apply ${string}`]: Record<never, never> } {
   return {
