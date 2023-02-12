@@ -5,7 +5,7 @@ export type UtilitiesOptions = {
   except?: Utility[],
 }
 
-export type Utility = 'center' | 'corner' | 'edge' | 'dimension'
+export type Utility = 'center' | 'corner' | 'edge' | 'dimension' | 'stretch'
 
 export function defineDimensionConfig (dimension: Record<string | number, string>): Record<string | number, string> {
   return dimension
@@ -15,8 +15,24 @@ export function toDimensionTheme (dimension: Record<string | number, string>): {
   return { dimension }
 }
 
+export function defineStretchWidthConfig (stretchWidth: Record<string | number, string>): Record<string | number, string> {
+  return stretchWidth
+}
+
+export function toStretchWidthTheme (stretchWidth: Record<string | number, string>): { stretchWidth: Record<string | number, string> } {
+  return { stretchWidth }
+}
+
+export function defineStretchHeightConfig (stretchHeight: Record<string | number, string>): Record<string | number, string> {
+  return stretchHeight
+}
+
+export function toStretchHeightTheme (stretchHeight: Record<string | number, string>): { stretchHeight: Record<string | number, string> } {
+  return { stretchHeight }
+}
+
 const defaultOptions: UtilitiesOptions = {
-  only: ['center', 'corner', 'edge', 'dimension'],
+  only: ['center', 'corner', 'edge', 'dimension', 'stretch'],
   except: [],
 }
 
@@ -164,7 +180,7 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
     if (utilities.includes('dimension')) {
       matchUtilities(
         {
-          d: (value) => ({
+          d: value => ({
             height: toHeight(value),
             width: toWidth(value),
           }),
@@ -176,6 +192,18 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
             ...theme('dimension'),
           }
         }
+      )
+    }
+
+    if (utilities.includes('stretch')) {
+      matchUtilities(
+        { 'stretch-w': value => apply(`w-full max-w-[${value}]`) },
+        { values: { ...theme('maxWidth'), ...theme('stretchWidth') } }
+      )
+      
+      matchUtilities(
+        { 'stretch-h': value => apply(`h-full max-h-[${value}]`) },
+        { values: { ...theme('maxHeight'), ...theme('stretchHeight') } }
       )
     }
   }
