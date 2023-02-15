@@ -5,7 +5,7 @@ export type UtilitiesOptions = {
   except?: Utility[],
 }
 
-export type Utility = 'center' | 'corner' | 'edge' | 'dimension' | 'stretch'
+export type Utility = 'center' | 'corner' | 'edge' | 'dimension' | 'stretch' | 'flex'
 
 export function defineDimensionConfig (dimension: Record<string | number, string>): Record<string | number, string> {
   return dimension
@@ -32,7 +32,7 @@ export function toStretchHeightTheme (stretchHeight: Record<string | number, str
 }
 
 const defaultOptions: UtilitiesOptions = {
-  only: ['center', 'corner', 'edge', 'dimension', 'stretch'],
+  only: ['center', 'corner', 'edge', 'dimension', 'stretch', 'flex'],
   except: [],
 }
 
@@ -182,24 +182,20 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
 
     if (utilities.includes('dimension')) {
       const values = {
-        ...theme('height'),
         ...theme('width'),
+        ...theme('height'),
         ...theme('dimension'),
       }
       
       matchUtilities(
         {
           d: (value, { modifier }) => ({
-            height: toHeight(value),
-            width: toWidth(modifier || value),
+            width: toWidth(value),
+            height: toHeight(modifier || value),
           }),
         },
         {
-          values: {
-            ...theme('height'),
-            ...theme('width'),
-            ...theme('dimension'),
-          },
+          values,
           type: 'any', // Necessary to support custom v% and cq% units
           modifiers: values,
         }
@@ -226,6 +222,46 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
           type: 'length',
         }
       )
+    }
+
+    if (utilities.includes('flex')) {
+      const values = {
+        ...theme('spacing'),
+        ...theme('gap'),
+        ...theme('flex'),
+      }
+
+      delete values.DEFAULT // Don't interfere with base flex utilities
+      
+      for (const identifier of ['flex', 'flex-col', 'inline-flex', 'inline-flex-col']) {
+        matchUtilities(
+          {
+            [identifier]: (value, { modifier }) => ({
+              display: identifier.replace('-col', ''),
+              ...(() => {
+                if (identifier.endsWith('-col')) return {
+                  flexDirection: 'column',
+                }
+              })(),
+              ...(() => {
+                if (modifier) return {
+                  gapX: value,
+                  gapY: modifier,
+                }
+  
+                if (value) return {
+                  gap: value,
+                }
+              })(),
+            }),
+          },
+          {
+            values,
+            type: 'length',
+            modifiers: values,
+          }
+        )
+      }
     }
   }
 })
@@ -257,8 +293,8 @@ function toHeight(height: string) {
     .replace(cqPercentRE, (_, value) => `${value}cqh`)
 }
 
-function toWidth(heightOrArbitraryValue: string) {
-  return heightOrArbitraryValue
+function toWidth(width: string) {
+  return width
     .replace(vhRE, (_, value) => `${value}vw`)
     .replace(cqhRE, (_, value) => `${value}cqw`)
     .replace(vPercentRE, (_, value) => `${value}vw`)
