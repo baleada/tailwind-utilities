@@ -5,7 +5,7 @@ export type UtilitiesOptions = {
   except?: Utility[],
 }
 
-export type Utility = 'center' | 'corner' | 'edge' | 'dimension' | 'stretch' | 'flex'
+export type Utility = 'center' | 'corner' | 'edge' | 'dimension' | 'stretch' | 'gapModifiers'
 
 export function defineDimensionConfig (dimension: Record<string | number, string>): Record<string | number, string> {
   return dimension
@@ -32,7 +32,7 @@ export function toStretchHeightTheme (stretchHeight: Record<string | number, str
 }
 
 const defaultOptions: UtilitiesOptions = {
-  only: ['center', 'corner', 'edge', 'dimension', 'stretch', 'flex'],
+  only: ['center', 'corner', 'edge', 'dimension', 'stretch', 'gapModifiers'],
   except: [],
 }
 
@@ -49,38 +49,51 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
     const apply = createApply(prefix)
 
     if (utilities.includes('center')) {
+      const { flex, flexCol, grid } = utilities.includes('gapModifiers')
+        ? {
+          flex: ':is(.flex, [class*="flex/"]):not(:is(.flex-col, [class*="flex-col/"]))',
+          flexCol: ':is(.flex-col, [class*="flex-col/"])',
+          grid: ':is(.grid, [class*="grid/"])',
+        }
+        : {
+          flex: '.flex:not(.flex-col)',
+          flexCol: '.flex.flex-col',
+          grid: '.grid',
+        }
+      
       addUtilities({
         '.center': {
-          '&:where(.flex:not(.flex-col) > &)': apply('self-center mx-auto'),
-          '&:where(.flex.flex-col > &)': apply('self-center my-auto'),
-          '&:where(.grid > &)': apply('place-self-center'),
-          '&:where(.absolute, .fixed, .sticky)': apply('top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2'),
+          [`&:where(${flex} > &)`]: apply('self-center mx-auto'),
+          [`&:where(${flexCol} > &)`]: apply('self-center my-auto'),
+          [`&:where(${grid} > &)`]: apply('place-self-center'),
+          [`&:where(.absolute, .fixed, .sticky)`]: apply('top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2'),
         },
         '.center-x': {
-          '&:where(.flex:not(.flex-col) > &)': apply('mx-auto'),
-          '&:where(.flex.flex-col > &)': apply('self-center'),
-          '&:where(.grid > &)': apply('justify-self-center'),
-          '&:where(.absolute, .fixed, .sticky)': apply('left-1/2 -translate-x-1/2'),
+          [`&:where(${flex} > &)`]: apply('mx-auto'),
+          [`&:where(${flexCol} > &)`]: apply('self-center'),
+          [`&:where(${grid} > &)`]: apply('justify-self-center'),
+          [`&:where(.absolute, .fixed, .sticky)`]: apply('left-1/2 -translate-x-1/2'),
         },
         '.center-y': {
-          '&:where(.flex:not(.flex-col) > &)': apply('self-center'),
-          '&:where(.flex.flex-col > &)': apply('my-auto'),
-          '&:where(.grid > &)': apply('self-center'),
-          '&:where(.absolute, .fixed, .sticky)': apply('top-1/2 -translate-y-1/2'),
+          [`&:where(${flex} > &)`]: apply('self-center'),
+          [`&:where(${flexCol} > &)`]: apply('my-auto'),
+          [`&:where(${grid} > &)`]: apply('self-center'),
+          [`&:where(.absolute, .fixed, .sticky)`]: apply('top-1/2 -translate-y-1/2'),
         },
         '.center-all': {
-          '&:where(.flex)': apply('items-center justify-center'),
-          '&:where(.grid)': apply('place-items-center'),
+          [`&:where(${flex})`]: apply('items-center justify-center'),
+          [`&:where(${flexCol})`]: apply('items-center justify-center'),
+          [`&:where(${grid})`]: apply('place-items-center'),
         },
         '.center-all-x': {
-          '&:where(.grid)': apply('justify-items-center'),
-          '&:where(.flex:not(.flex-col))': apply('justify-center'),
-          '&:where(.flex.flex-col)': apply('items-center'),
+          [`&:where(${flex})`]: apply('justify-center'),
+          [`&:where(${flexCol})`]: apply('items-center'),
+          [`&:where(${grid})`]: apply('justify-items-center'),
         },
         '.center-all-y': {
-          '&:where(.grid)': apply('items-center'),
-          '&:where(.flex:not(.flex-col))': apply('items-center'),
-          '&:where(.flex.flex-col)': apply('justify-center'),
+          [`&:where(${flex})`]: apply('items-center'),
+          [`&:where(${flexCol})`]: apply('justify-center'),
+          [`&:where(${grid})`]: apply('items-center'),
         },        
       })
     }
@@ -224,41 +237,24 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
       )
     }
 
-    if (utilities.includes('flex')) {
-      const values = {
-        ...theme('spacing'),
-        ...theme('gap'),
-        ...theme('flex'),
-      }
-
-      delete values.DEFAULT // Don't interfere with base flex utilities
-      
-      for (const identifier of ['flex', 'flex-col', 'inline-flex', 'inline-flex-col']) {
+    if (utilities.includes('gapModifiers')) {
+      for (const identifier of ['flex', 'flex-col', 'grid']) {
         matchUtilities(
           {
             [identifier]: (value, { modifier }) => ({
               display: identifier.replace('-col', ''),
-              ...(() => {
-                if (identifier.endsWith('-col')) return {
-                  flexDirection: 'column',
-                }
-              })(),
-              ...(() => {
-                if (modifier) return {
-                  gapX: value,
-                  gapY: modifier,
-                }
-  
-                if (value) return {
-                  gap: value,
-                }
-              })(),
+              ...(identifier === 'flex-col' ? { flexDirection: 'column' } : {}),
+              ...(modifier ? { gap: modifier } : {}),
             }),
           },
           {
-            values,
+            values: { DEFAULT: '' },
             type: 'length',
-            modifiers: values,
+            modifiers: {
+              ...theme('spacing'),
+              ...theme('gap'),
+              ...theme('gapModifiers'),
+            },
           }
         )
       }
