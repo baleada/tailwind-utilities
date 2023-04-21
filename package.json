@@ -14,7 +14,8 @@
   "scripts": {
     "prepare": "tsc && rollup --config rollup.config.ts --configPlugin typescript --bundleConfigAsCjs",
     "test:only": "run() { uvu -r esbuild-register tests/$2 $1.test.ts$; }; run",
-    "test": "npm run test:only ."
+    "test": "npm run test:only .",
+    "dev": "vite"
   },
   "repository": {
     "type": "git",

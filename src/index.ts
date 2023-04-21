@@ -193,7 +193,8 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
             ...theme('height'),
             ...theme('width'),
             ...theme('dimension'),
-          }
+          },
+          type: 'any',
         }
       )
     }
@@ -205,6 +206,7 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
         },
         {
           values: { ...theme('maxWidth'), ...theme('stretchWidth') },
+          type: 'length',
         }
       )
       
@@ -214,6 +216,7 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
         },
         {
           values: { ...theme('maxHeight'), ...theme('stretchHeight') },
+          type: 'length',
         }
       )
     }
@@ -241,6 +244,8 @@ const spaceRE = / /g
 
 function toHeight(height) {
   return height
+    .replace(vwRE, (_, value) => `${value}vh`)
+    .replace(cqwRE, (_, value) => `${value}cqh`)
     .replace(vPercentRE, (_, value) => `${value}vh`)
     .replace(cqPercentRE, (_, value) => `${value}cqh`)
 }
@@ -254,6 +259,8 @@ function toWidth(height) {
 }
 
 const vhRE = /(\d+)vh/g
+const vwRE = /(\d+)vw/g
 const cqhRE = /(\d+)cqh/g
+const cqwRE = /(\d+)cqw/g
 const vPercentRE = /(\d+)v%/g
 const cqPercentRE = /(\d+)cq%/g
