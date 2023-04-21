@@ -183,9 +183,13 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
     if (utilities.includes('dimension')) {
       matchUtilities(
         {
-          d: value => ({
+          d: (value, { modifier }) => ({
             height: toHeight(value),
-            width: toWidth(value),
+            width: modifier
+              ? theme('dimension')?.[modifier]
+                || theme('width')?.[modifier]
+                || toWidth(modifier)
+              : toWidth(value)
           }),
         },
         {
@@ -194,7 +198,8 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
             ...theme('width'),
             ...theme('dimension'),
           },
-          type: 'any',
+          type: 'any', // Necessary to support custom v% and cq% units
+          modifiers: 'any',
         }
       )
     }
@@ -242,7 +247,7 @@ const whitespaceRE = /(?:\n| ){2,}/gm
 const startRE = /^/
 const spaceRE = / /g
 
-function toHeight(height) {
+function toHeight(height: string) {
   return height
     .replace(vwRE, (_, value) => `${value}vh`)
     .replace(cqwRE, (_, value) => `${value}cqh`)
@@ -250,14 +255,16 @@ function toHeight(height) {
     .replace(cqPercentRE, (_, value) => `${value}cqh`)
 }
 
-function toWidth(height) {
-  return height
+function toWidth(heightOrArbitraryValue: string) {
+  return heightOrArbitraryValue
+    .replace(arbitraryValueBracketsRE, '')
     .replace(vhRE, (_, value) => `${value}vw`)
     .replace(cqhRE, (_, value) => `${value}cqw`)
     .replace(vPercentRE, (_, value) => `${value}vw`)
     .replace(cqPercentRE, (_, value) => `${value}cqw`)
 }
 
+const arbitraryValueBracketsRE = /(?:^\[|\]$)/g
 const vhRE = /(\d+)vh/g
 const vwRE = /(\d+)vw/g
 const cqhRE = /(\d+)cqh/g
