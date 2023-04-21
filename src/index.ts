@@ -44,26 +44,29 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
 
   const utilities = only.filter(utility => !except.includes(utility))
   
-  return ({ addUtilities, matchUtilities, theme }) => {
+  return ({ addUtilities, matchUtilities, theme, config }) => {
+    const prefix = config('prefix') as string
+    const apply = createApply(prefix)
+
     if (utilities.includes('center')) {
       addUtilities({
         '.center': {
           '&:where(.flex:not(.flex-col) > &)': apply('self-center mx-auto'),
           '&:where(.flex.flex-col > &)': apply('self-center my-auto'),
           '&:where(.grid > &)': apply('place-self-center'),
-          '&:where(.absolute)': apply('top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2'),
+          '&:where(.absolute, .fixed, .sticky)': apply('top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2'),
         },
         '.center-x': {
           '&:where(.flex:not(.flex-col) > &)': apply('mx-auto'),
           '&:where(.flex.flex-col > &)': apply('self-center'),
           '&:where(.grid > &)': apply('justify-self-center'),
-          '&:where(.absolute)': apply('left-1/2 -translate-x-1/2'),
+          '&:where(.absolute, .fixed, .sticky)': apply('left-1/2 -translate-x-1/2'),
         },
         '.center-y': {
           '&:where(.flex:not(.flex-col) > &)': apply('self-center'),
           '&:where(.flex.flex-col > &)': apply('my-auto'),
           '&:where(.grid > &)': apply('self-center'),
-          '&:where(.absolute)': apply('top-1/2 -translate-y-1/2'),
+          '&:where(.absolute, .fixed, .sticky)': apply('top-1/2 -translate-y-1/2'),
         },
         '.center-all': {
           '&:where(.flex)': apply('items-center justify-center'),
@@ -87,25 +90,25 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
         '.corner-t-l': {
           '&:where(.flex > &)': apply('self-start'),
           '&:where(.grid > &)': apply('place-self-start'),
-          '&:where(.absolute)': apply('top-0 left-0'),
+          '&:where(.absolute, .fixed, .sticky)': apply('top-0 left-0'),
         },
         '.corner-t-r': {
           '&:where(.flex:not(.flex-col) > &)': apply('self-start ml-auto'),
           '&:where(.flex.flex-col > &)': apply('self-end'),
           '&:where(.grid > &)': apply('self-start ml-auto'),
-          '&:where(.absolute)': apply('top-0 right-0'),
+          '&:where(.absolute, .fixed, .sticky)': apply('top-0 right-0'),
         },
         '.corner-b-r': {
           '&:where(.flex:not(.flex-col) > &)': apply('self-end ml-auto'),
           '&:where(.flex.flex-col > &)': apply('self-end mt-auto'),
           '&:where(.grid > &)': apply('place-self-end'),
-          '&:where(.absolute)': apply('bottom-0 right-0'),
+          '&:where(.absolute, .fixed, .sticky)': apply('bottom-0 right-0'),
         },
         '.corner-b-l': {
           '&:where(.flex:not(.flex-col) > &)': apply('self-end'),
           '&:where(.flex.flex-col > &)': apply('self-start mt-auto'),
           '&:where(.grid > &)': apply('self-end'),
-          '&:where(.absolute)': apply('bottom-0 left-0'),
+          '&:where(.absolute, .fixed, .sticky)': apply('bottom-0 left-0'),
         },
         '.corner-all-t-l': {
           '&:where(.flex)': apply('items-start justify-start'),
@@ -134,25 +137,25 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
           '&:where(.flex:not(.flex-col) > &)': apply('mx-auto'),
           '&:where(.flex.flex-col > &)': apply('self-center'),
           '&:where(.grid > &)': apply('justify-self-center'),
-          '&:where(.absolute)': apply('left-1/2 -translate-x-1/2'),
+          '&:where(.absolute, .fixed, .sticky)': apply('left-1/2 -translate-x-1/2'),
         },
         '.edge-r': {
           '&:where(.flex:not(.flex-col) > &)': apply('self-center ml-auto'),
           '&:where(.flex.flex-col > &)': apply('self-end my-auto'),
           '&:where(.grid > &)': apply('self-center place-self-end'),
-          '&:where(.absolute)': apply('top-1/2 -translate-y-1/2 right-0'),
+          '&:where(.absolute, .fixed, .sticky)': apply('top-1/2 -translate-y-1/2 right-0'),
         },
         '.edge-b': {
           '&:where(.flex:not(.flex-col) > &)': apply('self-end mx-auto'),
           '&:where(.flex.flex-col > &)': apply('self-center mt-auto'),
           '&:where(.grid > &)': apply('self-end justify-self-center'),
-          '&:where(.absolute)': apply('bottom-0 left-1/2 -translate-x-1/2'),
+          '&:where(.absolute, .fixed, .sticky)': apply('bottom-0 left-1/2 -translate-x-1/2'),
         },
         '.edge-l': {
           '&:where(.flex:not(.flex-col) > &)': apply('self-center'),
           '&:where(.flex.flex-col > &)': apply('my-auto'),
           '&:where(.grid > &)': apply('self-center'),
-          '&:where(.absolute)': apply('left-0 top-1/2 -translate-y-1/2'),
+          '&:where(.absolute, .fixed, .sticky)': apply('left-0 top-1/2 -translate-y-1/2'),
         },
         '.edge-all-t': {
           '&:where(.grid)': apply('justify-items-center'),
@@ -197,25 +200,44 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
 
     if (utilities.includes('stretch')) {
       matchUtilities(
-        { 'stretch-w': value => apply(`w-full max-w-[${value}]`) },
-        { values: { ...theme('maxWidth'), ...theme('stretchWidth') } }
+        {
+          'stretch-w': value => apply(`w-full max-w-[${value}]`),
+        },
+        {
+          values: { ...theme('maxWidth'), ...theme('stretchWidth') },
+        }
       )
       
       matchUtilities(
-        { 'stretch-h': value => apply(`h-full max-h-[${value}]`) },
-        { values: { ...theme('maxHeight'), ...theme('stretchHeight') } }
+        {
+          'stretch-h': value => apply(`h-full max-h-[${value}]`),
+        },
+        {
+          values: { ...theme('maxHeight'), ...theme('stretchHeight') },
+        }
       )
     }
   }
 })
 
-export default plugin
-
-export function apply (classes: string): { [apply: `@apply ${string}`]: Record<never, never> } {
-  return {
-    [`@apply ${classes}`]: {}
+export function createApply (prefix: string) {
+  return function apply (classes: string): { [statement: `@apply ${string}`]: Record<never, never> } {
+    const withMinimizedWhitespace = classes
+            .replace(whitespaceRE, ' ')
+            .trim(),
+          withPrefix = prefix
+            ? withMinimizedWhitespace
+              .replace(startRE, prefix)
+              .replace(spaceRE, ` ${prefix}`)
+            : withMinimizedWhitespace
+    return {
+      [`@apply ${withPrefix}`]: {}
+    }
   }
 }
+const whitespaceRE = /(?:\n| ){2,}/gm
+const startRE = /^/
+const spaceRE = / /g
 
 function toHeight(height) {
   return height
