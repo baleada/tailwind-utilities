@@ -1,6 +1,6 @@
 {
   "name": "@baleada/tailwind-utilities",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "TailwindCSS plugin that adds some exquisite utility classes",
   "main": "lib/index.cjs",
   "module": "lib/index.js",
