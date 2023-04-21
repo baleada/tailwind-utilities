@@ -238,12 +238,16 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
     }
 
     if (utilities.includes('gapModifiers')) {
-      for (const identifier of ['flex', 'flex-col', 'grid']) {
+      for (const identifier of ['flex', 'flex-col', 'flex-row', 'grid']) {
         matchUtilities(
           {
             [identifier]: (value, { modifier }) => ({
-              display: identifier.replace('-col', ''),
-              ...(identifier === 'flex-col' ? { flexDirection: 'column' } : {}),
+              display: identifier.replace(/-(?:col|row)/, ''),
+              ...(() => {
+                if (identifier === 'flex-col') return { flexDirection: 'column' }
+                if (identifier === 'flex-row') return { flexDirection: 'row' }
+                return {}
+              })(),
               ...(modifier ? { gap: modifier } : {}),
             }),
           },
