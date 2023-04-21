@@ -181,15 +181,17 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
     }
 
     if (utilities.includes('dimension')) {
+      const values = {
+        ...theme('height'),
+        ...theme('width'),
+        ...theme('dimension'),
+      }
+      
       matchUtilities(
         {
           d: (value, { modifier }) => ({
             height: toHeight(value),
-            width: modifier
-              ? theme('dimension')?.[modifier]
-                || theme('width')?.[modifier]
-                || toWidth(modifier)
-              : toWidth(value)
+            width: toWidth(modifier || value),
           }),
         },
         {
@@ -199,7 +201,7 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
             ...theme('dimension'),
           },
           type: 'any', // Necessary to support custom v% and cq% units
-          modifiers: 'any',
+          modifiers: values,
         }
       )
     }
@@ -257,14 +259,12 @@ function toHeight(height: string) {
 
 function toWidth(heightOrArbitraryValue: string) {
   return heightOrArbitraryValue
-    .replace(arbitraryValueBracketsRE, '')
     .replace(vhRE, (_, value) => `${value}vw`)
     .replace(cqhRE, (_, value) => `${value}cqw`)
     .replace(vPercentRE, (_, value) => `${value}vw`)
     .replace(cqPercentRE, (_, value) => `${value}cqw`)
 }
 
-const arbitraryValueBracketsRE = /(?:^\[|\]$)/g
 const vhRE = /(\d+)vh/g
 const vwRE = /(\d+)vw/g
 const cqhRE = /(\d+)cqh/g
