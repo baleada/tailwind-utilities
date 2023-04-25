@@ -349,3 +349,27 @@ render()
 for (const details of document.querySelectorAll('details')) {
   details.open = true
 }
+
+// Don't purge these
+// center
+// center-x
+// center-y
+// center-all
+// center-all-x
+// center-all-y
+// corner-t-l
+// corner-t-r
+// corner-b-r
+// corner-b-l
+// corner-all-t-l
+// corner-all-t-r
+// corner-all-b-r
+// corner-all-b-l
+// edge-t
+// edge-r
+// edge-b
+// edge-l
+// edge-all-t
+// edge-all-r
+// edge-all-b
+// edge-all-l

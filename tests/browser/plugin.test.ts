@@ -40,7 +40,6 @@ const horizontals = ['left', 'right'] as const
 const axes = ['both', 'x', 'y'] as const
 
 for (const alignment of alignments) {
-  // CHILD
   switch (alignment) {
     case 'center':
       for (const axis of axes) {
@@ -87,43 +86,142 @@ for (const alignment of alignments) {
             assert.ok(value)
           })
         }
+
+        const id = axis === 'both'
+          ? `responsive-${alignment}-all`
+          : `responsive-${alignment}-all-${axis}`
+
+        suite(id, async ({ playwright: { page } }) => {
+          await page.waitForSelector(`#${id}`)
+          await page.setViewportSize({ width: 500, height: 1000 })
+          
+          await (async () => {
+            const value = await page.evaluate(([id, axis]) => {
+              const element = document.getElementById(id) as Element
+
+              return axis === 'both'
+                ? (
+                  window.predicate.centerAll.flex.x(element)
+                  && window.predicate.centerAll.flex.y(element)
+                )
+                : window.predicate.centerAll.flex[axis](element)
+            }, [id, axis])
+
+            assert.ok(value)
+          })()
+
+          await page.setViewportSize({ width: 640, height: 1000 })
+          
+          await (async () => {
+            const value = await page.evaluate(([id, axis]) => {
+              const element = document.getElementById(id) as Element
+
+              return axis === 'both'
+                ? (
+                  window.predicate.centerAll['flex-col'].x(element)
+                  && window.predicate.centerAll['flex-col'].y(element)
+                )
+                : window.predicate.centerAll['flex-col'][axis](element)
+            }, [id, axis])
+
+            assert.ok(value, 'sm')
+          })()
+
+          await page.setViewportSize({ width: 768, height: 1000 })
+
+          await (async () => {
+            const value = await page.evaluate(([id, axis]) => {
+              const element = document.getElementById(id) as Element
+
+              return axis === 'both'
+                ? (
+                  window.predicate.centerAll.grid.x(element)
+                  && window.predicate.centerAll.grid.y(element)
+                )
+                : window.predicate.centerAll.grid[axis](element)
+            }, [id, axis])
+
+            assert.ok(value, 'md')
+          })()
+        })
       }
       
       break
     case 'corner':
-    for (const vertical of verticals) {
-      for (const horizontal of horizontals) {
-        for (const variant of childVariants) {
-          const id = `${variant}-${alignment}-${vertical[0]}-${horizontal[0]}`
+      for (const vertical of verticals) {
+        for (const horizontal of horizontals) {
+          for (const variant of childVariants) {
+            const id = `${variant}-${alignment}-${vertical[0]}-${horizontal[0]}`
+
+            suite(id, async ({ playwright: { page } }) => {
+              await page.waitForSelector(`#${id}`)
+              const value = await page.evaluate(([id, vertical, horizontal]) => {
+                      const element = document.getElementById(id) as Element
+
+                      return window.predicate.corner[vertical][horizontal](element)
+                    }, [id, vertical, horizontal])
+
+              assert.ok(value)
+            })
+          }
+
+          for (const variant of parentVariants) {
+            const id = `${variant}-${alignment}-all-${vertical[0]}-${horizontal[0]}`
+
+            suite(id, async ({ playwright: { page } }) => {
+              await page.waitForSelector(`#${id}`)
+              const value = await page.evaluate(([id, vertical, horizontal, variant]) => {
+                      const element = document.getElementById(id) as Element
+
+                      return window.predicate.cornerAll[variant][vertical][horizontal](element)
+                    }, [id, vertical, horizontal, variant])
+
+              assert.ok(value)
+            })
+          }
+
+          const id = `responsive-${alignment}-all-${vertical[0]}-${horizontal[0]}`
 
           suite(id, async ({ playwright: { page } }) => {
             await page.waitForSelector(`#${id}`)
-            const value = await page.evaluate(([id, vertical, horizontal]) => {
-                    const element = document.getElementById(id) as Element
+            await page.setViewportSize({ width: 500, height: 1000 })
+            
+            await (async () => {
+              const value = await page.evaluate(([id, vertical, horizontal]) => {
+                const element = document.getElementById(id) as Element
 
-                    return window.predicate.corner[vertical][horizontal](element)
-                  }, [id, vertical, horizontal])
+                return window.predicate.cornerAll.flex[vertical][horizontal](element)
+              }, [id, vertical, horizontal])
 
-            assert.ok(value)
-          })
-        }
+              assert.ok(value)
+            })()
 
-        for (const variant of parentVariants) {
-          const id = `${variant}-${alignment}-all-${vertical[0]}-${horizontal[0]}`
+            await page.setViewportSize({ width: 640, height: 1000 })
+            
+            await (async () => {
+              const value = await page.evaluate(([id, vertical, horizontal]) => {
+                const element = document.getElementById(id) as Element
 
-          suite(id, async ({ playwright: { page } }) => {
-            await page.waitForSelector(`#${id}`)
-            const value = await page.evaluate(([id, vertical, horizontal, variant]) => {
-                    const element = document.getElementById(id) as Element
+                return window.predicate.cornerAll['flex-col'][vertical][horizontal](element)
+              }, [id, vertical, horizontal])
 
-                    return window.predicate.cornerAll[variant][vertical][horizontal](element)
-                  }, [id, vertical, horizontal, variant])
+              assert.ok(value, 'sm')
+            })()
 
-            assert.ok(value)
+            await page.setViewportSize({ width: 768, height: 1000 })
+
+            await (async () => {
+              const value = await page.evaluate(([id, vertical, horizontal]) => {
+                const element = document.getElementById(id) as Element
+
+                return window.predicate.cornerAll.grid[vertical][horizontal](element)
+              }, [id, vertical, horizontal])
+
+              assert.ok(value, 'md')
+            })()
           })
         }
       }
-    }
 
       break
     case 'edge':
@@ -157,6 +255,47 @@ for (const alignment of alignments) {
             assert.ok(value)
           })
         }
+
+        const id = `responsive-${alignment}-all-${direction[0]}`
+
+        suite(id, async ({ playwright: { page } }) => {
+          await page.waitForSelector(`#${id}`)
+          await page.setViewportSize({ width: 500, height: 1000 })
+          
+          await (async () => {
+            const value = await page.evaluate(([id, direction]) => {
+              const element = document.getElementById(id) as Element
+
+              return window.predicate.edgeAll.flex[direction](element)
+            }, [id, direction])
+
+            assert.ok(value)
+          })()
+
+          await page.setViewportSize({ width: 640, height: 1000 })
+          
+          await (async () => {
+            const value = await page.evaluate(([id, direction]) => {
+              const element = document.getElementById(id) as Element
+
+              return window.predicate.edgeAll['flex-col'][direction](element)
+            }, [id, direction])
+
+            assert.ok(value, 'sm')
+          })()
+
+          await page.setViewportSize({ width: 768, height: 1000 })
+
+          await (async () => {
+            const value = await page.evaluate(([id, direction]) => {
+              const element = document.getElementById(id) as Element
+
+              return window.predicate.edgeAll.grid[direction](element)
+            }, [id, direction])
+
+            assert.ok(value, 'md')
+          })()
+        })
       }
       
       break

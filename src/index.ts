@@ -5,6 +5,7 @@ export type UtilitiesOptions = {
     namespace?: string,
     whitespace?: ' ' | '/**/',
   },
+  maxGridTemplate?: number,
 }
 
 export type Utility = 'center' | 'corner' | 'edge' | 'dimension' | 'stretch' | 'gap modifiers'
@@ -33,30 +34,45 @@ export function toStretchHeightTheme (stretchHeight: Record<string | number, str
   return { stretchHeight }
 }
 
-const defaultOptions: UtilitiesOptions = {
+const defaultOptions: DeepRequired<UtilitiesOptions> = {
   spaceToggle: {
     namespace: 'baleada',
     whitespace: ' ',
-  }
+  },
+  maxGridTemplate: 12,
+}
+
+type DeepRequired<Object extends Record<any, any>> = {
+  [Key in keyof Object]-?: Object[Key] extends Record<any, any> ? DeepRequired<Object[Key]> : Object[Key]
 }
 
 /**
  * https://baleada.dev/docs/utilities
  */
 export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) => {
-  const spaceToggleConfig = { ...defaultOptions.spaceToggle, ...(options.spaceToggle || {}) } as Parameters<typeof createSpaceToggle>[0]
+  const { maxGridTemplate, spaceToggle: spaceToggleConfig } = { ...defaultOptions, ...options },
+        narrowedSpaceToggleConfig = { ...defaultOptions.spaceToggle, ...spaceToggleConfig }
   
   return ({ addUtilities, matchUtilities, theme, config }) => {
     const prefix = config('prefix') as string,
           apply = createApply(prefix),
-          { toNamespaced, toOr, toAnd, toVar, toCondition, toValue } = createSpaceToggle(spaceToggleConfig)
+          { toNamespaced, toOr, toAnd, toVar, toCondition, toValue } = createSpaceToggle(narrowedSpaceToggleConfig),
+          toGridValues = createToGridValues({ maxGridTemplate })
 
     // FLEX/GRID OVERRIDES, INCLUDING GAP MODIFIERS
     ;(() => {
       const toGap = (modifier: string | undefined) => modifier ? { gap: modifier } : {},
+            toGridTemplate = (value: `cols-${number}` | `rows-${number}` | '') => {
+              if (!value) return {}
+
+              const [type, count] = value.split('-')
+
+              return {
+                [`gridTemplate${type === 'cols' ? 'Columns' : 'Rows'}`]: count === 'none' ? 'none' : `repeat(${count}, minmax(0, 1fr))`,
+              }
+            },
             matchUtilitiesOptions: Parameters<typeof matchUtilities<string, string>>[1] = {
-              values: { DEFAULT: '' },
-              type: 'length',
+              type: 'any',
               // @ts-expect-error
               modifiers: { ...theme('spacing'), ...theme('gap') },
             }
@@ -65,44 +81,26 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
         {
           'flex': (value, { modifier }) => ({
             ...toCondition('flex', true),
-            ...toCondition('flex-row', true),
-            ...toCondition('flex-col', false),
+            ...toCondition('flex-row', !value || ['row', 'row-reverse'].includes(value)),
+            ...toCondition('flex-col', ['col', 'col-reverse'].includes(value)),
             ...toCondition('grid', false),
             display: 'flex',
+            flexDirection: value.startsWith('col')
+              ? value.replace('col', 'column')
+              : value || 'row',
             ...toGap(modifier),
           })
         },
-        matchUtilitiesOptions
-      )
-
-      matchUtilities(
         {
-          'flex-row': (value, { modifier }) => ({
-            ...toCondition('flex', true),
-            ...toCondition('flex-row', true),
-            ...toCondition('flex-col', false),
-            ...toCondition('grid', false),
-            display: 'flex',
-            flexDirection: 'row',
-            ...toGap(modifier),
-          })
-        },
-        matchUtilitiesOptions
-      )
-
-      matchUtilities(
-        {
-          'flex-col': (value, { modifier }) => ({
-            ...toCondition('flex', true),
-            ...toCondition('flex-row', false),
-            ...toCondition('flex-col', true),
-            ...toCondition('grid', false),
-            display: 'flex',
-            flexDirection: 'column',
-            ...toGap(modifier),
-          })
-        },
-        matchUtilitiesOptions
+          ...matchUtilitiesOptions,
+          values: {
+            DEFAULT: '',
+            row: 'row',
+            col: 'col',
+            'row-reverse': 'row-reverse',
+            'col-reverse': 'col-reverse',
+          },
+        }
       )
 
       matchUtilities(
@@ -113,10 +111,18 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
             ...toCondition('flex-col', false),
             ...toCondition('grid', true),
             display: 'grid',
+            ...toGridTemplate(value as `cols-${number}` | `rows-${number}` | ''),
             ...toGap(modifier),
           })
         },
-        matchUtilitiesOptions
+        {
+          ...matchUtilitiesOptions,
+          values: {
+            DEFAULT: '',
+            ...toGridValues('cols'),
+            ...toGridValues('rows'),
+          }
+        }
       )
     })()
 
@@ -479,5 +485,17 @@ export function createSpaceToggle ({ namespace, whitespace }: { namespace: strin
     toVar,
     toCondition,
     toValue,
+  }
+}
+
+export function createToGridValues ({ maxGridTemplate }: { maxGridTemplate: number }) {
+  return (template: 'cols' | 'rows') => {
+    return new Array(maxGridTemplate)
+      .fill(0)
+      .map((_, index) => index + 1)
+      .reduce(
+        (gridValues, count) => ({ ...gridValues, [`${template}-${count}`]: `${template}-${count}` }),
+        { [`${template}-none`]: `${template}-none` }
+      )
   }
 }
