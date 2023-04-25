@@ -2,7 +2,9 @@
   "compilerOptions": {
     "target": "esnext",
     "module": "esnext",
-    "types": [],
+    "typeRoots": [
+      "./tests/@types",
+    ],
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "declaration": true,
