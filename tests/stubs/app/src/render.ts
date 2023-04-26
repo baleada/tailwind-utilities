@@ -1,5 +1,5 @@
 export function render () {
-  const { childVariants, parentVariants, alignments, verticals, horizontals, axes } = window
+  const { variants, positions, alignments, verticals, horizontals, axes } = window
 
   const detailsClassList = 'flex-col p-6'.split(' '),
         summaryClassList = 'text-sm uppercase font-bold text-indigo-600'.split(' '),
@@ -23,7 +23,8 @@ export function render () {
     switch (alignment) {
       case 'center':
         for (const axis of axes) {
-          for (const variant of childVariants) {
+          for (const variant of [...variants, ...positions]) {
+            if (['relative', 'sticky', 'fixed'].includes(variant)) continue
             const { id, utility } = (() =>
                     axis === 'both'
                       ? { id: `${variant}-${alignment}`, utility: alignment }
@@ -39,7 +40,8 @@ export function render () {
             testParent.classList.add(...testParentClassList)
             testChild.classList.add(...testChildClassList)
 
-            if (variant === 'absolute') testChild.classList.add(variant)
+            // @ts-expect-error
+            if (positions.includes(variant)) testChild.classList.add(variant)
             else testParent.classList.add(variant)
             testChild.classList.add(utility)
             testChild.id = id
@@ -48,13 +50,36 @@ export function render () {
             test.append(label, testParent)
             detailsBody.append(test)
           }
+
+          const { id, utility } = (() =>
+                  axis === 'both'
+                    ? { id: `responsive-position-${alignment}`, utility: alignment }
+                    : { id: `responsive-position-${alignment}-${axis}`, utility: `${alignment}-${axis}` }
+                )(),
+                test = document.createElement('div'),
+                label = document.createElement('code'),
+                testParent = document.createElement('div'),
+                testChild = document.createElement('div')
+
+          label.textContent = id
+          test.classList.add(...testClassList)
+          testParent.classList.add(...testParentClassList)
+          testChild.classList.add(...testChildClassList)
+
+          testChild.classList.add(utility, 'absolute', 'sm:relative')
+          testChild.id = id
+
+          testParent.append(testChild)
+          test.append(label, testParent)
+          detailsBody.append(test)
         }
 
         break
       case 'corner':
         for (const vertical of verticals) {
           for (const horizontal of horizontals) {
-            for (const variant of childVariants) {
+            for (const variant of [...variants, ...positions]) {
+              if (['relative', 'sticky', 'fixed'].includes(variant)) continue
               const id = `${variant}-${alignment}-${vertical[0]}-${horizontal[0]}`,
                     utility = `${alignment}-${vertical[0]}-${horizontal[0]}`,
                     test = document.createElement('div'),
@@ -67,7 +92,8 @@ export function render () {
               testParent.classList.add(...testParentClassList)
               testChild.classList.add(...testChildClassList)
 
-              if (variant === 'absolute') testChild.classList.add(variant)
+              // @ts-expect-error
+              if (positions.includes(variant)) testChild.classList.add(variant)
               else testParent.classList.add(variant)
               testChild.classList.add(utility)
               testChild.id = id
@@ -76,13 +102,33 @@ export function render () {
               test.append(label, testParent)
               detailsBody.append(test)
             }
+
+            const id = `responsive-position-${alignment}-${vertical[0]}-${horizontal[0]}`,
+                  utility = `${alignment}-${vertical[0]}-${horizontal[0]}`,
+                  test = document.createElement('div'),
+                  label = document.createElement('code'),
+                  testParent = document.createElement('div'),
+                  testChild = document.createElement('div')
+
+            label.textContent = id
+            test.classList.add(...testClassList)
+            testParent.classList.add(...testParentClassList)
+            testChild.classList.add(...testChildClassList)
+
+            testChild.classList.add(utility, 'absolute', 'sm:relative')
+            testChild.id = id
+
+            testParent.append(testChild)
+            test.append(label, testParent)
+            detailsBody.append(test)
           }
         }
 
         break
       case 'edge':
         for (const direction of [...verticals, ...horizontals]) {
-          for (const variant of childVariants) {
+          for (const variant of [...variants, ...positions]) {
+            if (['relative', 'sticky', 'fixed'].includes(variant)) continue
             const id = `${variant}-${alignment}-${direction[0]}`,
                   utility = `${alignment}-${direction[0]}`,
                   test = document.createElement('div'),
@@ -95,7 +141,8 @@ export function render () {
             testParent.classList.add(...testParentClassList)
             testChild.classList.add(...testChildClassList)
 
-            if (variant === 'absolute') testChild.classList.add(variant)
+            // @ts-expect-error
+            if (positions.includes(variant)) testChild.classList.add(variant)
             else testParent.classList.add(variant)
             testChild.classList.add(utility)
             testChild.id = id
@@ -104,6 +151,25 @@ export function render () {
             test.append(label, testParent)
             detailsBody.append(test)
           }
+
+          const id = `responsive-position-${alignment}-${direction[0]}`,
+                utility = `${alignment}-${direction[0]}`,
+                test = document.createElement('div'),
+                label = document.createElement('code'),
+                testParent = document.createElement('div'),
+                testChild = document.createElement('div')
+
+          label.textContent = id
+          test.classList.add(...testClassList)
+          testParent.classList.add(...testParentClassList)
+          testChild.classList.add(...testChildClassList)
+
+          testChild.classList.add(utility, 'absolute', 'sm:relative')
+          testChild.id = id
+
+          testParent.append(testChild)
+          test.append(label, testParent)
+          detailsBody.append(test)
         }
 
         break
@@ -113,7 +179,7 @@ export function render () {
     switch (alignment) {
       case 'center':
         for (const axis of axes) {
-          for (const variant of parentVariants) {
+          for (const variant of variants) {
             const { id, utility } = (() =>
                     axis === 'both'
                       ? { id: `${variant}-${alignment}-all`, utility: `${alignment}-all` }
@@ -165,7 +231,7 @@ export function render () {
       case 'corner':
         for (const vertical of verticals) {
           for (const horizontal of horizontals) {
-            for (const variant of parentVariants) {
+            for (const variant of variants) {
               const id = `${variant}-${alignment}-all-${vertical[0]}-${horizontal[0]}`,
                     utility = `${alignment}-all-${vertical[0]}-${horizontal[0]}`,
                     test = document.createElement('div'),
@@ -211,7 +277,7 @@ export function render () {
         break
       case 'edge':
         for (const direction of [...verticals, ...horizontals]) {
-          for (const variant of parentVariants) {
+          for (const variant of variants) {
             const id = `${variant}-${alignment}-all-${direction[0]}`,
                   utility = `${alignment}-all-${direction[0]}`,
                   test = document.createElement('div'),

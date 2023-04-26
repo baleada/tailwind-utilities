@@ -1,6 +1,6 @@
 export type Globals = {
-  childVariants: ['flex', 'flex-col', 'grid', 'absolute'],
-  parentVariants: ['flex', 'flex-col', 'grid'],
+  variants: ['flex', 'flex-col', 'grid'],
+  positions: ['absolute', 'fixed', 'sticky', 'relative'],
   alignments: ['center', 'corner', 'edge'],
   verticals: ['top', 'bottom'],
   horizontals: ['left', 'right'],

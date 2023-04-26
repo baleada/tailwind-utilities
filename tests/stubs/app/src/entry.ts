@@ -1,8 +1,8 @@
 import './index.css'
 import { render } from './render'
 
-window.childVariants = ['flex', 'flex-col', 'grid', 'absolute']
-window.parentVariants = ['flex', 'flex-col', 'grid']
+window.variants = ['flex', 'flex-col', 'grid']
+window.positions = ['absolute', 'fixed', 'sticky', 'relative']
 window.alignments = ['center', 'corner', 'edge']
 window.verticals = ['top', 'bottom']
 window.horizontals = ['left', 'right']
