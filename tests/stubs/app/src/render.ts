@@ -2,11 +2,13 @@ export function renderTests () {
   const { variants, positions, alignments, verticals, horizontals, axes } = window
 
   const detailsClassList = 'flex-col p-6'.split(' '),
-        summaryClassList = 'text-sm uppercase font-bold text-indigo-600'.split(' '),
+        summaryClassList = 'text-sm uppercase font-bold text-slate-600'.split(' '),
         detailsBodyClassList = 'max-w-[450px] flex-col gap-6'.split(' '),
         testClassList = 'flex-col gap-2'.split(' '),
-        testParentClassList = 'relative h-36 gap-[15px] rounded bg-indigo-200'.split(' '),
-        testChildClassList = 'h-6 w-6 rounded bg-indigo-600'.split(' '),
+        childTestParentClassList = 'relative h-36 gap-[15px] rounded bg-indigo-200'.split(' '),
+        parentTestParentClassList = 'relative h-36 gap-[15px] rounded bg-cyan-200'.split(' '),
+        childTestChildClassList = 'h-6 w-6 rounded bg-indigo-600'.split(' '),
+        parentTestChildClassList = 'h-6 w-6 rounded bg-cyan-600'.split(' '),
         responsiveChildTestClassList = 'flex sm:flex-col md:grid'.split(' '),
         responsiveParentTestClassList = 'flex sm:flex-col md:grid-cols-3'.split(' ')
 
@@ -42,8 +44,8 @@ export function renderTests () {
     const narrowedChildren = testChildren || [testChild as HTMLElement]
     label.textContent = id
     test.classList.add(...testClassList)
-    testParent.classList.add(...testParentClassList)
-    narrowedChildren.forEach(testChild => testChild.classList.add(...testChildClassList))
+    testParent.classList.add(...testChild ? childTestParentClassList : parentTestParentClassList)
+    narrowedChildren.forEach(c => c.classList.add(...testChild ? childTestChildClassList : parentTestChildClassList))
     testParent.append(...narrowedChildren)
     test.append(label, testParent)
     detailsBody.append(label, test)
@@ -79,6 +81,7 @@ export function renderTests () {
             testChild.id = id
 
             renderTest({ id, label, test, testParent, testChild, detailsBody })
+            label.textContent = toChildLabel(utility, variant)
           }
 
           // Center child in a responsive parent
@@ -93,6 +96,7 @@ export function renderTests () {
             testChild.id = id
 
             renderTest({ id, label, test, testParent, testChild, detailsBody })
+            label.textContent = toChildLabel(utility, 'responsive parent')
           }
 
           // Center child with a responsive position
@@ -106,6 +110,7 @@ export function renderTests () {
             testChild.id = id
   
             renderTest({ id, label, test, testParent, testChild, detailsBody })
+            label.textContent = toChildLabel(utility, 'responsive position')
           }
         }
 
@@ -127,6 +132,7 @@ export function renderTests () {
               testChild.id = id
 
               renderTest({ id, label, test, testParent, testChild, detailsBody })
+              label.textContent = toChildLabel(utility, variant)
             }
 
             // Corner child in a responsive parent
@@ -140,6 +146,7 @@ export function renderTests () {
               testChild.id = id
 
               renderTest({ id, label, test, testParent, testChild, detailsBody })
+              label.textContent = toChildLabel(utility, 'responsive parent')
             }
 
             // Corner child with a responsive position
@@ -152,6 +159,7 @@ export function renderTests () {
               testChild.id = id
   
               renderTest({ id, label, test, testParent, testChild, detailsBody })
+              label.textContent = toChildLabel(utility, 'responsive position')
             }
           }
         }
@@ -173,6 +181,7 @@ export function renderTests () {
             testChild.id = id
 
             renderTest({ id, label, test, testParent, testChild, detailsBody })
+            label.textContent = toChildLabel(utility, variant)
           }
 
           // Edge child in a responsive parent
@@ -186,6 +195,7 @@ export function renderTests () {
             testChild.id = id
 
             renderTest({ id, label, test, testParent, testChild, detailsBody })
+            label.textContent = toChildLabel(utility, 'responsive parent')
           }
 
           // Edge child with a responsive position
@@ -198,6 +208,7 @@ export function renderTests () {
             testChild.id = id
   
             renderTest({ id, label, test, testParent, testChild, detailsBody })
+            label.textContent = toChildLabel(utility, 'responsive position')
           }
         }
 
@@ -220,6 +231,7 @@ export function renderTests () {
             testParent.id = id
 
             renderTest({ id, label, test, testParent, testChildren, detailsBody })
+            label.textContent = toParentLabel(utility, variant)
           }
 
           // Center children of a responsive parent
@@ -233,6 +245,7 @@ export function renderTests () {
             testParent.id = id
   
             renderTest({ id, label, test, testParent, testChildren, detailsBody })
+            label.textContent = toParentLabel(utility, 'responsive')
           }
         }
 
@@ -251,6 +264,7 @@ export function renderTests () {
               testParent.id = id
 
               renderTest({ id, label, test, testParent, testChildren, detailsBody })
+              label.textContent = toParentLabel(utility, variant)
             }
 
             // Corner children of a responsive parent
@@ -263,6 +277,7 @@ export function renderTests () {
               testParent.id = id
   
               renderTest({ id, label, test, testParent, testChildren, detailsBody })
+              label.textContent = toParentLabel(utility, 'responsive')
             }
           }
         }
@@ -281,6 +296,7 @@ export function renderTests () {
             testParent.id = id
 
             renderTest({ id, label, test, testParent, testChildren, detailsBody })
+            label.textContent = toParentLabel(utility, variant)
           }
 
           // Edge children of a responsive parent
@@ -293,6 +309,7 @@ export function renderTests () {
             testParent.id = id
   
             renderTest({ id, label, test, testParent, testChildren, detailsBody })
+            label.textContent = toParentLabel(utility, 'responsive')
           }
         }
 
@@ -302,6 +319,12 @@ export function renderTests () {
     details.append(summary, detailsBody)
     document.body.prepend(details)
   }
+
+  const legend = document.createElement('p')
+  legend.classList.add('p-6', 'max-w-[450px]')
+  legend.innerHTML = `For center, corner, and edge utilities, the <strong>child classes</strong> (classes that you add to a child to align it inside its parent) are shown in <span class="inline-flex items-center translate-y-[2px] gap-1"><span class="h-4 w-4 bg-indigo-200 rounded"></span><span class="text-indigo-600"><strong>indigo</strong></span></span>, and the <strong>parent classes</strong> (classes that you add to a parent to align all its direct children) are shown in <span class="inline-flex items-center translate-y-[2px] gap-1"><span class="h-4 w-4 bg-cyan-200 rounded"></span><span class="text-cyan-600"><strong>cyan</strong></span></span>.`
+
+  document.body.prepend(legend)
 }
 
 function toChildLabel (utility: string, variant: string) {
