@@ -1,5 +1,5 @@
 import './index.css'
-import { render } from './render'
+import { renderTests } from './render'
 
 window.variants = ['flex', 'flex-col', 'grid']
 window.positions = ['absolute', 'fixed', 'sticky', 'relative']
@@ -344,7 +344,7 @@ window.predicate.edgeAll.grid.left = parent => {
   )
 }
 
-render()
+renderTests()
 
 for (const details of document.querySelectorAll('details')) {
   details.open = true

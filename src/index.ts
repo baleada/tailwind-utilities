@@ -146,65 +146,89 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
     {
       addUtilities({
         '.center': {
-          [`&:where(${flexRow} > &)`]: apply('self-center mx-auto'),
-          [`&:where(${flexCol} > &)`]: apply('self-center my-auto'),
-          [`&:where(${grid} > &)`]: apply('place-self-center'),
-          [`&:where(.absolute, .fixed, .sticky)`]: {
+          [`&:where(${alignable} > &)`]: {
+            alignSelf: toValue(
+              toOr('flex-row', 'flex-col', 'grid'),
+              'center',
+            ),
+            justifySelf: toValue(
+              toOr('grid'),
+              'center',
+            ),
+            ...mx(toValue(
+              toOr('flex-row'),
+              'auto',
+            )),
+            ...my(toValue(
+              toOr('flex-col'),
+              'auto',
+            ))
+          },
+          [`&:where(${absolute})`]: {
             top: toValue(
               toOr('absolute', 'fixed', 'sticky'),
-              toAnd('not-static', 'not-relative'),
               '50%',
             ),
             left: toValue(
               toOr('absolute', 'fixed', 'sticky'),
-              toAnd('not-static', 'not-relative'),
               '50%',
             ),
             ['--tw-translate-y']: toValue(
               toOr('absolute', 'fixed', 'sticky'),
-              toAnd('not-static', 'not-relative'),
               '-50%',
             ),
             ['--tw-translate-x']: toValue(
               toOr('absolute', 'fixed', 'sticky'),
-              toAnd('not-static', 'not-relative'),
               '-50%',
             ),
             ...apply('transform'),
           }
         },
         '.center-x': {
-          [`&:where(${flexRow} > &)`]: apply('mx-auto'),
-          [`&:where(${flexCol} > &)`]: apply('self-center'),
-          [`&:where(${grid} > &)`]: apply('justify-self-center'),
-          [`&:where(.absolute, .fixed, .sticky)`]: {
+          [`&:where(${alignable} > &)`]: {
+            alignSelf: toValue(
+              toOr('flex-col'),
+              'center',
+            ),
+            justifySelf: toValue(
+              toOr('grid'),
+              'center',
+            ),
+            ...mx(toValue(
+              toOr('flex-row'),
+              'auto',
+            )),
+          },
+          [`&:where(${absolute})`]: {
             left: toValue(
               toOr('absolute', 'fixed', 'sticky'),
-              toAnd('not-static', 'not-relative'),
               '50%',
             ),
             ['--tw-translate-x']: toValue(
               toOr('absolute', 'fixed', 'sticky'),
-              toAnd('not-static', 'not-relative'),
               '-50%',
             ),
             ...apply('transform'),
           }
         },
         '.center-y': {
-          [`&:where(${flexRow} > &)`]: apply('self-center'),
-          [`&:where(${flexCol} > &)`]: apply('my-auto'),
-          [`&:where(${grid} > &)`]: apply('self-center'),
-          [`&:where(.absolute, .fixed, .sticky)`]: {
-            //apply('top-1/2 -translate-y-1/2'),
+          [`&:where(${alignable} > &)`]: {
+            alignSelf: toValue(
+              toOr('flex-row', 'grid'),
+              'center',
+            ),
+            ...my(toValue(
+              toOr('flex-col'),
+              'auto',
+            ))
+          },
+          [`&:where(${absolute})`]: {
             top: toValue(
               toOr('absolute', 'fixed', 'sticky'),
-              toAnd('not-static', 'not-relative'),
               '50%',
             ),
             ['--tw-translate-y']: toValue(
               toOr('absolute', 'fixed', 'sticky'),
-              toAnd('not-static', 'not-relative'),
               '-50%',
             ),
             ...apply('transform'),
@@ -256,71 +280,110 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
     {
       addUtilities({
         '.corner-t-l': {
-          [`&:where(${flex} > &)`]: apply('self-start'),
-          [`&:where(${grid} > &)`]: apply('place-self-start'),
-          [`&:where(.absolute, .fixed, .sticky)`]: {
+          [`&:where(${alignable} > &)`]: {
+            alignSelf: toValue(
+              toOr('flex-row', 'flex-col', 'grid'),
+              'self-start',
+            ),
+            justifySelf: toValue(
+              toOr('grid'),
+              'self-start',
+            ),
+          },
+          [`&:where(${absolute})`]: {
             top: toValue(
               toOr('absolute', 'fixed', 'sticky'),
-              toAnd('not-static', 'not-relative'),
               '0',
             ),
             left: toValue(
               toOr('absolute', 'fixed', 'sticky'),
-              toAnd('not-static', 'not-relative'),
               '0',
             ),
-          }
+          },
         },
         '.corner-t-r': {
-          [`&:where(${flexRow} > &)`]: apply('self-start ml-auto'),
-          [`&:where(${flexCol} > &)`]: apply('self-end'),
-          [`&:where(${grid} > &)`]: apply('self-start ml-auto'),
-          [`&:where(.absolute, .fixed, .sticky)`]: {
+          [`&:where(${alignable} > &)`]: {
+            [toNamespaced('items-start-if-flex-row-or-grid')]: toValue(
+              toOr('flex-row', 'grid'),
+              'start'
+            ),
+            [toNamespaced('items-end-if-flex-col')]: toValue(
+              toOr('flex-col'),
+              'end'
+            ),
+            alignSelf: toOr('items-start-if-flex-row-or-grid', 'items-end-if-flex-col'),
+            marginLeft: toValue(
+              toOr('flex-row', 'grid'),
+              'auto',
+            ),
+          },
+          [`&:where(${absolute})`]: {
             top: toValue(
               toOr('absolute', 'fixed', 'sticky'),
-              toAnd('not-static', 'not-relative'),
               '0',
             ),
             right: toValue(
               toOr('absolute', 'fixed', 'sticky'),
-              toAnd('not-static', 'not-relative'),
               '0',
             ),
-          }
+          },
         },
         '.corner-b-r': {
-          [`&:where(${flexRow} > &)`]: apply('self-end ml-auto'),
-          [`&:where(${flexCol} > &)`]: apply('self-end mt-auto'),
-          [`&:where(${grid} > &)`]: apply('place-self-end'),
-          [`&:where(.absolute, .fixed, .sticky)`]: {
+          [`&:where(${alignable} > &)`]: {
+            alignSelf: toValue(
+              toOr('flex-row', 'flex-col', 'grid'),
+              'end',
+            ),
+            justifySelf: toValue(
+              toOr('grid'),
+              'end',
+            ),
+            marginLeft: toValue(
+              toOr('flex-row'),
+              'auto',
+            ),
+            marginTop: toValue(
+              toOr('flex-col'),
+              'auto',
+            ),
+          },
+          [`&:where(${absolute})`]: {
             bottom: toValue(
               toOr('absolute', 'fixed', 'sticky'),
-              toAnd('not-static', 'not-relative'),
               '0',
             ),
             right: toValue(
               toOr('absolute', 'fixed', 'sticky'),
-              toAnd('not-static', 'not-relative'),
               '0',
             ),
-          }
+          },
         },
         '.corner-b-l': {
-          [`&:where(${flexRow} > &)`]: apply('self-end'),
-          [`&:where(${flexCol} > &)`]: apply('self-start mt-auto'),
-          [`&:where(${grid} > &)`]: apply('self-end'),
-          [`&:where(.absolute, .fixed, .sticky)`]: {
+          [`&:where(${alignable} > &)`]: {
+            [toNamespaced('items-end-if-flex-row-or-grid')]: toValue(
+              toOr('flex-row', 'grid'),
+              'end'
+            ),
+            [toNamespaced('items-start-if-flex-col')]: toValue(
+              toVar('flex-col'),
+              'start'
+            ),
+            alignSelf: toOr('items-end-if-flex-row-or-grid', 'items-start-if-flex-col'),
+            marginTop: toValue(
+              toOr('flex-col'),
+              'auto',
+            ),
+          },
+          [`&:where(${absolute})`]: {
             bottom: toValue(
               toOr('absolute', 'fixed', 'sticky'),
-              toAnd('not-static', 'not-relative'),
               '0',
             ),
             left: toValue(
               toOr('absolute', 'fixed', 'sticky'),
-              toAnd('not-static', 'not-relative'),
               '0',
             ),
-          }
+          },
         },
         '.corner-all-t-l': {
           alignItems: 'start',
@@ -387,87 +450,134 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
     {
       addUtilities({
         '.edge-t': {
-          [`&:where(${flexRow} > &)`]: apply('mx-auto'),
-          [`&:where(${flexCol} > &)`]: apply('self-center'),
-          [`&:where(${grid} > &)`]: apply('justify-self-center'),
-          [`&:where(.absolute, .fixed, .sticky)`]: {
+          [`&:where(${alignable} > &)`]: {
+            alignSelf: toValue(
+              toOr('flex-col'),
+              'center',
+            ),
+            justifySelf: toValue(
+              toOr('grid'),
+              'center',
+            ),
+            ...mx(toValue(
+              toOr('flex-row'),
+              'auto',
+            )),
+          },
+          [`&:where(${absolute})`]: {
             left: toValue(
               toOr('absolute', 'fixed', 'sticky'),
-              toAnd('not-static', 'not-relative'),
               '50%',
             ),
             ['--tw-translate-x']: toValue(
               toOr('absolute', 'fixed', 'sticky'),
-              toAnd('not-static', 'not-relative'),
               '-50%',
             ),
             ...apply('transform'),
           }
         },
         '.edge-r': {
-          [`&:where(${flexRow} > &)`]: apply('self-center ml-auto'),
-          [`&:where(${flexCol} > &)`]: apply('self-end my-auto'),
-          [`&:where(${grid} > &)`]: apply('self-center place-self-end'),
-          [`&:where(.absolute, .fixed, .sticky)`]: {
+          [`&:where(${alignable} > &)`]: {
+            [toNamespaced('items-center-if-flex-row-or-grid')]: toValue(
+              toOr('flex-row', 'grid'),
+              'center'
+            ),
+            [toNamespaced('items-end-if-flex-col')]: toValue(
+              toOr('flex-col'),
+              'end'
+            ),
+            alignSelf: toOr('items-center-if-flex-row-or-grid', 'items-end-if-flex-col'),
+            justifySelf: toValue(
+              toOr('grid'),
+              'end',
+            ),
+            marginLeft: toValue(
+              toOr('flex-row'),
+              'auto',
+            ),
+            ...my(toValue(
+              toOr('flex-col'),
+              'auto',
+            )),
+          },
+          [`&:where(${absolute})`]: {
             top: toValue(
               toOr('absolute', 'fixed', 'sticky'),
-              toAnd('not-static', 'not-relative'),
               '50%',
             ),
             right: toValue(
               toOr('absolute', 'fixed', 'sticky'),
-              toAnd('not-static', 'not-relative'),
               '0',
             ),
             ['--tw-translate-y']: toValue(
               toOr('absolute', 'fixed', 'sticky'),
-              toAnd('not-static', 'not-relative'),
               '-50%',
             ),
             ...apply('transform'),
           }
         },
         '.edge-b': {
-          [`&:where(${flexRow} > &)`]: apply('self-end mx-auto'),
-          [`&:where(${flexCol} > &)`]: apply('self-center mt-auto'),
-          [`&:where(${grid} > &)`]: apply('self-end justify-self-center'),
-          [`&:where(.absolute, .fixed, .sticky)`]: {
+          [`&:where(${alignable} > &)`]: {
+            [toNamespaced('items-end-if-flex-row-or-grid')]: toValue(
+              toOr('flex-row', 'grid'),
+              'end'
+            ),
+            [toNamespaced('items-center-if-flex-col')]: toValue(
+              toOr('flex-col'),
+              'center'
+            ),
+            alignSelf: toOr('items-end-if-flex-row-or-grid', 'items-center-if-flex-col'),
+            justifySelf: toValue(
+              toOr('grid'),
+              'center',
+            ),
+            ...mx(toValue(
+              toOr('flex-row'),
+              'auto',
+            )),
+            marginTop: toValue(
+              toOr('flex-col'),
+              'auto',
+            ),
+          },
+          [`&:where(${absolute})`]: {
             bottom: toValue(
               toOr('absolute', 'fixed', 'sticky'),
-              toAnd('not-static', 'not-relative'),
               '0',
             ),
             left: toValue(
               toOr('absolute', 'fixed', 'sticky'),
-              toAnd('not-static', 'not-relative'),
               '50%',
             ),
             ['--tw-translate-x']: toValue(
               toOr('absolute', 'fixed', 'sticky'),
-              toAnd('not-static', 'not-relative'),
               '-50%',
             ),
             ...apply('transform'),
           }
         },
         '.edge-l': {
-          [`&:where(${flexRow} > &)`]: apply('self-center'),
-          [`&:where(${flexCol} > &)`]: apply('my-auto'),
-          [`&:where(${grid} > &)`]: apply('self-center'),
-          [`&:where(.absolute, .fixed, .sticky)`]: {
+          [`&:where(${alignable} > &)`]: {
+            alignSelf: toValue(
+              toOr('flex-row', 'grid'),
+              'center',
+            ),
+            ...my(toValue(
+              toOr('flex-col'),
+              'auto',
+            )),
+          },
+          [`&:where(${absolute})`]: {
             left: toValue(
               toOr('absolute', 'fixed', 'sticky'),
-              toAnd('not-static', 'not-relative'),
               '0',
             ),
             top: toValue(
               toOr('absolute', 'fixed', 'sticky'),
-              toAnd('not-static', 'not-relative'),
               '50%',
             ),
             ['--tw-translate-y']: toValue(
               toOr('absolute', 'fixed', 'sticky'),
-              toAnd('not-static', 'not-relative'),
               '-50%',
             ),
             ...apply('transform'),
@@ -578,10 +688,20 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
   }
 })
 
-const flex = ':is(.flex, .flex-row, .flex-col, [class*="flex/"], [class*="flex-row/"], [class*="flex-col/"])',
-      flexRow = ':is(.flex, .flex-row, [class*="flex/"], [class*="flex-row/"]):not(:is(.flex-col, [class*="flex-col/"]))',
-      flexCol = ':is(.flex-col, [class*="flex-col/"])',
-      grid = ':is(.grid, [class*="grid/"])'
+const alignable = (() => {
+        const selectors = ['flex', 'flex-row', 'flex-col', 'grid'].reduce((alignable, variant) => {
+          alignable.push(
+            `\.${variant}`,
+            `[class$=":${variant}"]`,
+            `[class^="${variant}/"]`,
+            `[class*=":${variant}/"]`
+          )
+          return alignable
+        }, [])
+
+        return `:is(${selectors.join(', ')})`
+      })(),
+      absolute = ':is(.absolute, .fixed, .sticky, [class$=":absolute"], [class$=":fixed"], [class$=":sticky"])'
 
 export function createApply (prefix: string) {
   return function apply (classes: string): { [statement: `@apply ${string}`]: Record<never, never> } {
@@ -667,5 +787,19 @@ function createToGridValues ({ maxGridTemplate }: { maxGridTemplate: number }) {
         (gridValues, count) => ({ ...gridValues, [`${template}-${count}`]: `${template}-${count}` }),
         { [`${template}-none`]: `${template}-none` }
       )
+  }
+}
+
+function mx (value: string) {
+  return {
+    marginLeft: value,
+    marginRight: value,
+  }
+}
+
+function my (value: string) {
+  return {
+    marginTop: value,
+    marginBottom: value,
   }
 }

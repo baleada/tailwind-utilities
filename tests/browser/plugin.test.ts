@@ -23,11 +23,12 @@ for (const alignment of alignments) {
   switch (alignment) {
     case 'center':
       for (const axis of axes) {
+        // Basic child centering
         for (const variant of [...variants, ...positions]) {
           if (['relative', 'sticky', 'fixed'].includes(variant)) continue
           const id = axis === 'both'
-                    ? `${variant}-${alignment}`
-                    : `${variant}-${alignment}-${axis}`
+            ? `${variant}-${alignment}`
+            : `${variant}-${alignment}-${axis}`            
 
           suite(id, async ({ playwright: { page } }) => {
             await page.waitForSelector(`#${id}`)
@@ -39,13 +40,75 @@ for (const alignment of alignments) {
                   window.predicate.center.x(element)
                   && window.predicate.center.y(element)
                 )
-                : window.predicate.center[axis](element)
+                : window.predicate.center[axis](element) && !window.predicate.center[axis === 'x' ? 'y': 'x'](element)
             }, [id, axis])
 
             assert.ok(value)
           })
         }
 
+        // Center child in a responsive parent
+        {
+          const id = axis === 'both'
+            ? `responsive-${alignment}`
+            : `responsive-${alignment}-${axis}`
+
+          suite(id, async ({ playwright: { page } }) => {
+            await page.waitForSelector(`#${id}`)
+            await page.setViewportSize({ width: 500, height: 1000 })
+            
+            await (async () => {
+              const value = await page.evaluate(([id, axis]) => {
+                const element = document.getElementById(id) as Element
+
+                return axis === 'both'
+                  ? (
+                    window.predicate.center.x(element)
+                    && window.predicate.center.y(element)
+                  )
+                  : window.predicate.center[axis](element) && !window.predicate.center[axis === 'x' ? 'y': 'x'](element)
+              }, [id, axis])
+
+              assert.ok(value, 'base')
+            })()
+
+            await page.setViewportSize({ width: 640, height: 1000 })
+            
+            await (async () => {
+              const value = await page.evaluate(([id, axis]) => {
+                const element = document.getElementById(id) as Element
+
+                return axis === 'both'
+                  ? (
+                    window.predicate.center.x(element)
+                    && window.predicate.center.y(element)
+                  )
+                  : window.predicate.center[axis](element) && !window.predicate.center[axis === 'x' ? 'y': 'x'](element)
+              }, [id, axis])
+
+              assert.ok(value, 'sm')
+            })()
+
+            await page.setViewportSize({ width: 768, height: 1000 })
+
+            await (async () => {
+              const value = await page.evaluate(([id, axis]) => {
+                const element = document.getElementById(id) as Element
+
+                return axis === 'both'
+                  ? (
+                    window.predicate.center.x(element)
+                    && window.predicate.center.y(element)
+                  )
+                  : window.predicate.center[axis](element) && !window.predicate.center[axis === 'x' ? 'y': 'x'](element)
+              }, [id, axis])
+
+              assert.ok(value, 'md')
+            })()
+          })
+        }
+
+        // Center child with a responsive position
         {
           const id = axis === 'both'
             ? `responsive-position-${alignment}`
@@ -64,10 +127,10 @@ for (const alignment of alignments) {
                     window.predicate.center.x(element)
                     && window.predicate.center.y(element)
                   )
-                  : window.predicate.center[axis](element)
+                  : window.predicate.center[axis](element) && !window.predicate.center[axis === 'x' ? 'y': 'x'](element)
               }, [id, axis])
 
-              assert.ok(value)
+              assert.ok(value, 'base')
             })()
 
             await page.setViewportSize({ width: 640, height: 1000 })
@@ -84,11 +147,12 @@ for (const alignment of alignments) {
                   : !window.predicate.center[axis](element)
               }, [id, axis])
 
-              assert.ok(value)
+              assert.ok(value, 'sm')
             })()
           })
         }
 
+        // Basic parent centering
         for (const variant of variants) {
           const id = axis === 'both'
                     ? `${variant}-${alignment}-all`
@@ -104,13 +168,14 @@ for (const alignment of alignments) {
                   window.predicate.centerAll[variant].x(element)
                   && window.predicate.centerAll[variant].y(element)
                 )
-                : window.predicate.centerAll[variant][axis](element)
+                : window.predicate.centerAll[variant][axis](element) && !window.predicate.centerAll[variant][axis === 'x' ? 'y': 'x'](element)
             }, [id, axis, variant])
 
             assert.ok(value)
           })
         }
 
+        // Center children of a responsive parent
         {
           const id = axis === 'both'
             ? `responsive-${alignment}-all`
@@ -129,10 +194,10 @@ for (const alignment of alignments) {
                     window.predicate.centerAll.flex.x(element)
                     && window.predicate.centerAll.flex.y(element)
                   )
-                  : window.predicate.centerAll.flex[axis](element)
+                  : window.predicate.centerAll.flex[axis](element) && !window.predicate.centerAll.flex[axis === 'x' ? 'y': 'x'](element)
               }, [id, axis])
 
-              assert.ok(value)
+              assert.ok(value, 'base')
             })()
 
             await page.setViewportSize({ width: 640, height: 1000 })
@@ -146,10 +211,10 @@ for (const alignment of alignments) {
                     window.predicate.centerAll['flex-col'].x(element)
                     && window.predicate.centerAll['flex-col'].y(element)
                   )
-                  : window.predicate.centerAll['flex-col'][axis](element)
+                  : window.predicate.centerAll['flex-col'][axis](element) && !window.predicate.centerAll['flex-col'][axis === 'x' ? 'y': 'x'](element)
               }, [id, axis])
 
-              assert.ok(value)
+              assert.ok(value, 'sm')
             })()
 
             await page.setViewportSize({ width: 768, height: 1000 })
@@ -163,7 +228,7 @@ for (const alignment of alignments) {
                     window.predicate.centerAll.grid.x(element)
                     && window.predicate.centerAll.grid.y(element)
                   )
-                  : window.predicate.centerAll.grid[axis](element)
+                  : window.predicate.centerAll.grid[axis](element) && !window.predicate.centerAll.grid[axis === 'x' ? 'y': 'x'](element)
               }, [id, axis])
 
               assert.ok(value, 'md')
@@ -176,6 +241,7 @@ for (const alignment of alignments) {
     case 'corner':
       for (const vertical of verticals) {
         for (const horizontal of horizontals) {
+          // Basic child cornering
           for (const variant of [...variants, ...positions]) {
             if (['relative', 'sticky', 'fixed'].includes(variant)) continue
             const id = `${variant}-${alignment}-${vertical[0]}-${horizontal[0]}`
@@ -192,6 +258,51 @@ for (const alignment of alignments) {
             })
           }
 
+          // Corner child in a responsive parent
+          {
+            const id = `responsive-${alignment}-${vertical[0]}-${horizontal[0]}`
+  
+            suite(id, async ({ playwright: { page } }) => {
+              await page.waitForSelector(`#${id}`)
+              await page.setViewportSize({ width: 500, height: 1000 })
+              
+              await (async () => {
+                const value = await page.evaluate(([id, vertical, horizontal]) => {
+                  const element = document.getElementById(id) as Element
+  
+                  return window.predicate.corner[vertical][horizontal](element)
+                }, [id, vertical, horizontal])
+  
+                assert.ok(value, 'base')
+              })()
+  
+              await page.setViewportSize({ width: 640, height: 1000 })
+              
+              await (async () => {
+                const value = await page.evaluate(([id, vertical, horizontal]) => {
+                  const element = document.getElementById(id) as Element
+  
+                  return window.predicate.corner[vertical][horizontal](element)
+                }, [id, vertical, horizontal])
+  
+                assert.ok(value, 'sm')
+              })()
+  
+              await page.setViewportSize({ width: 768, height: 1000 })
+  
+              await (async () => {
+                const value = await page.evaluate(([id, vertical, horizontal]) => {
+                  const element = document.getElementById(id) as Element
+  
+                  return window.predicate.corner[vertical][horizontal](element)
+                }, [id, vertical, horizontal])
+  
+                assert.ok(value, 'md')
+              })()
+            })
+          }
+
+          // Corner child with a responsive position
           {
             const id = `responsive-position-${alignment}-${vertical[0]}-${horizontal[0]}`
   
@@ -206,7 +317,7 @@ for (const alignment of alignments) {
                   return window.predicate.corner[vertical][horizontal](element)
                 }, [id, vertical, horizontal])
 
-                assert.ok(value)
+                assert.ok(value, 'base')
               })()
   
               await page.setViewportSize({ width: 640, height: 1000 })
@@ -218,11 +329,12 @@ for (const alignment of alignments) {
                   return window.predicate.corner.top.left(element)
                 }, [id, vertical, horizontal])
 
-                assert.ok(value)
+                assert.ok(value, 'sm')
               })()
             })
           }
 
+          // Basic parent cornering
           for (const variant of variants) {
             const id = `${variant}-${alignment}-all-${vertical[0]}-${horizontal[0]}`
 
@@ -238,6 +350,7 @@ for (const alignment of alignments) {
             })
           }
 
+          // Corner children of a responsive parent
           {
             const id = `responsive-${alignment}-all-${vertical[0]}-${horizontal[0]}`
 
@@ -252,7 +365,7 @@ for (const alignment of alignments) {
                   return window.predicate.cornerAll.flex[vertical][horizontal](element)
                 }, [id, vertical, horizontal])
 
-                assert.ok(value)
+                assert.ok(value, 'base')
               })()
 
               await page.setViewportSize({ width: 640, height: 1000 })
@@ -264,7 +377,7 @@ for (const alignment of alignments) {
                   return window.predicate.cornerAll['flex-col'][vertical][horizontal](element)
                 }, [id, vertical, horizontal])
 
-                assert.ok(value)
+                assert.ok(value, 'sm')
               })()
 
               await page.setViewportSize({ width: 768, height: 1000 })
@@ -286,6 +399,7 @@ for (const alignment of alignments) {
       break
     case 'edge':
       for (const direction of [...verticals, ...horizontals]) {
+        // Basic child edging
         for (const variant of [...variants, ...positions]) {
           if (['relative', 'sticky', 'fixed'].includes(variant)) continue
           const id = `${variant}-${alignment}-${direction[0]}`
@@ -301,7 +415,52 @@ for (const alignment of alignments) {
             assert.ok(value)
           })
         }
+
+        // Edge child in a responsive parent
+        {
+          const id = `responsive-${alignment}-${direction[0]}`
+
+          suite(id, async ({ playwright: { page } }) => {
+            await page.waitForSelector(`#${id}`)
+            await page.setViewportSize({ width: 500, height: 1000 })
+            
+            await (async () => {
+              const value = await page.evaluate(([id, direction]) => {
+                const element = document.getElementById(id) as Element
+
+                return window.predicate.edge[direction](element)
+              }, [id, direction])
+
+              assert.ok(value, 'base')
+            })()
+
+            await page.setViewportSize({ width: 640, height: 1000 })
+            
+            await (async () => {
+              const value = await page.evaluate(([id, direction]) => {
+                const element = document.getElementById(id) as Element
+
+                return window.predicate.edge[direction](element)
+              }, [id, direction])
+
+              assert.ok(value, 'sm')
+            })()
+
+            await page.setViewportSize({ width: 768, height: 1000 })
+
+            await (async () => {
+              const value = await page.evaluate(([id, direction]) => {
+                const element = document.getElementById(id) as Element
+
+                return window.predicate.edge[direction](element)
+              }, [id, direction])
+
+              assert.ok(value, 'md')
+            })()
+          })
+        }
         
+        // Edge child with a responsive position
         {
           const id = `responsive-position-${alignment}-${direction[0]}`
 
@@ -316,7 +475,7 @@ for (const alignment of alignments) {
                 return window.predicate.edge[direction](element)
               }, [id, direction])
 
-              assert.ok(value)
+              assert.ok(value, 'base')
             })()
 
             await page.setViewportSize({ width: 640, height: 1000 })
@@ -328,11 +487,12 @@ for (const alignment of alignments) {
                 return window.predicate.corner.top.left(element)
               }, [id])
 
-              assert.ok(value)
+              assert.ok(value, 'sm')
             })()
           })
         }
 
+        // Basic parent edging
         for (const variant of variants) {
           const id = `${variant}-${alignment}-all-${direction[0]}`
 
@@ -348,46 +508,49 @@ for (const alignment of alignments) {
           })
         }
 
-        const id = `responsive-${alignment}-all-${direction[0]}`
+        // Edge children of a responsive parent
+        {
+          const id = `responsive-${alignment}-all-${direction[0]}`
 
-        suite(id, async ({ playwright: { page } }) => {
-          await page.waitForSelector(`#${id}`)
-          await page.setViewportSize({ width: 500, height: 1000 })
-          
-          await (async () => {
-            const value = await page.evaluate(([id, direction]) => {
-              const element = document.getElementById(id) as Element
+          suite(id, async ({ playwright: { page } }) => {
+            await page.waitForSelector(`#${id}`)
+            await page.setViewportSize({ width: 500, height: 1000 })
+            
+            await (async () => {
+              const value = await page.evaluate(([id, direction]) => {
+                const element = document.getElementById(id) as Element
 
-              return window.predicate.edgeAll.flex[direction](element)
-            }, [id, direction])
+                return window.predicate.edgeAll.flex[direction](element)
+              }, [id, direction])
 
-            assert.ok(value)
-          })()
+              assert.ok(value, 'base')
+            })()
 
-          await page.setViewportSize({ width: 640, height: 1000 })
-          
-          await (async () => {
-            const value = await page.evaluate(([id, direction]) => {
-              const element = document.getElementById(id) as Element
+            await page.setViewportSize({ width: 640, height: 1000 })
+            
+            await (async () => {
+              const value = await page.evaluate(([id, direction]) => {
+                const element = document.getElementById(id) as Element
 
-              return window.predicate.edgeAll['flex-col'][direction](element)
-            }, [id, direction])
+                return window.predicate.edgeAll['flex-col'][direction](element)
+              }, [id, direction])
 
-            assert.ok(value)
-          })()
+              assert.ok(value, 'sm')
+            })()
 
-          await page.setViewportSize({ width: 768, height: 1000 })
+            await page.setViewportSize({ width: 768, height: 1000 })
 
-          await (async () => {
-            const value = await page.evaluate(([id, direction]) => {
-              const element = document.getElementById(id) as Element
+            await (async () => {
+              const value = await page.evaluate(([id, direction]) => {
+                const element = document.getElementById(id) as Element
 
-              return window.predicate.edgeAll.grid[direction](element)
-            }, [id, direction])
+                return window.predicate.edgeAll.grid[direction](element)
+              }, [id, direction])
 
-            assert.ok(value, 'md')
-          })()
-        })
+              assert.ok(value, 'md')
+            })()
+          })
+        }
       }
       
       break
