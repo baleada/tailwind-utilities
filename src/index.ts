@@ -843,6 +843,7 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
                   : undefined
               ),
               [variables.width]: width,
+              '--tw-ring-offset-shadow': 'var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color)',
               '--tw-ring-shadow': `var(${variables.inset}) 0 0 0 calc(var(${variables.width}) + var(--tw-ring-offset-width)) var(${variables.color})`,
               boxShadow: 'var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)',
             }
