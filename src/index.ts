@@ -1,10 +1,20 @@
 import createPlugin from 'tailwindcss/plugin'
+// import flattenColorPalette from 'tailwindcss/src/util/flattenColorPalette'
+
+const flattenColorPalette = (colors) =>
+  Object.assign(
+    {},
+    ...Object.entries(colors ?? {}).flatMap(([color, values]) =>
+      typeof values == 'object'
+        ? Object.entries(flattenColorPalette(values)).map(([number, hex]) => ({
+            [color + (number === 'DEFAULT' ? '' : `-${number}`)]: hex,
+          }))
+        : [{ [`${color}`]: values }]
+    )
+  )
 
 export type UtilitiesOptions = {
-  spaceToggle?: {
-    namespace?: string,
-    whitespace?: ' ' | '/**/',
-  },
+  variableNamespace?: string,
   maxGridTemplate?: number,
 }
 
@@ -35,10 +45,7 @@ export function toStretchHeightTheme (stretchHeight: Record<string | number, str
 }
 
 const defaultOptions: DeepRequired<UtilitiesOptions> = {
-  spaceToggle: {
-    namespace: 'baleada',
-    whitespace: ' ',
-  },
+  variableNamespace: 'baleada',
   maxGridTemplate: 12,
 }
 
@@ -50,14 +57,15 @@ type DeepRequired<Object extends Record<any, any>> = {
  * https://baleada.dev/docs/utilities
  */
 export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) => {
-  const { maxGridTemplate, spaceToggle: spaceToggleConfig } = { ...defaultOptions, ...options },
-        narrowedSpaceToggleConfig = { ...defaultOptions.spaceToggle, ...spaceToggleConfig }
+  const { maxGridTemplate, variableNamespace } = { ...defaultOptions, ...options }
   
-  return ({ addUtilities, matchUtilities, theme, config }) => {
+  return ({ addBase, addUtilities, matchUtilities, theme, config }) => {
     const prefix = config('prefix') as string,
           apply = createApply(prefix),
-          { toNamespaced, toOr, toAnd, toVar, toCondition, toValue } = createSpaceToggleFns(narrowedSpaceToggleConfig),
-          toGridValues = createToGridValues({ maxGridTemplate })
+          { toNamespaced, toOr, toAnd, toVar, toCondition, toValue } = createSpaceToggleFns(variableNamespace),
+          toGridValues = createToGridValues(maxGridTemplate)
+    
+
 
     // FLEX/GRID OVERRIDES, INCLUDING GAP MODIFIERS
     {
@@ -126,6 +134,7 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
       )
     }
 
+
     // POSITION OVERRIDES
     {
       for (const position of ['absolute', 'fixed', 'relative', 'sticky', 'static']) {
@@ -141,6 +150,7 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
         })
       }
     }
+
 
     // CENTER
     {
@@ -276,6 +286,7 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
       })
     }
 
+    
     // CORNER
     {
       addUtilities({
@@ -446,6 +457,7 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
       })
     }
 
+    
     // EDGE
     {
       addUtilities({
@@ -640,6 +652,7 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
       })
     }
 
+    
     // DIMENSION
     {
       const values = {
@@ -663,6 +676,7 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
       )
     }
 
+
     // STRETCH
     {
       matchUtilities(
@@ -682,6 +696,154 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
         {
           values: { ...theme('maxHeight'), ...theme('stretchHeight') },
           type: 'length',
+        }
+      )
+    }
+
+
+    // RING SHORTHAND
+    {
+      // BASE
+      const variables = {
+        width: `--${variableNamespace}-ring-width`,
+        inset: `--tw-ring-inset`,
+        color: `--tw-ring-color`,
+      }
+
+      addBase({
+        '*, ::before, ::after': {
+          [variables.width]: '0',
+        }
+      })
+
+            
+      // VALUES
+      const values: Record<any, any> = { inset: {} },
+            widths = theme('ringWidth'),
+            flattenedColors = flattenColorPalette(theme('colors'))
+            
+      for (const color in flattenedColors) {
+        values[color] = JSON.stringify({
+          width: theme(`ringWidth.DEFAULT`),
+          inset: 'var(--tw-ring-inset)',
+          color: flattenedColors[color],
+        })
+      }
+
+      for (const widthSuffix in widths) {
+        if (widthSuffix === 'DEFAULT') {
+          values.DEFAULT = JSON.stringify({
+            inset: 'var(--tw-ring-inset)',
+            width: theme(`ringWidth.DEFAULT`),
+            color: 'var(--tw-ring-color)',
+          })
+          values.inset.DEFAULT = JSON.stringify({
+            inset: 'inset',
+            width: theme(`ringWidth.DEFAULT`),
+            color: 'var(--tw-ring-color)',
+          })
+
+          for (const color in flattenedColors) {
+            values[color] = JSON.stringify({
+              inset: 'var(--tw-ring-inset)',
+              width: theme(`ringWidth.${widthSuffix}`),
+              color: flattenedColors[color],
+            })
+            values.inset[color] = JSON.stringify({
+              inset: 'inset',
+              width: theme(`ringWidth.${widthSuffix}`),
+              color: flattenedColors[color],
+            })
+          }
+
+          continue
+        }
+
+        values[widthSuffix] = {
+          DEFAULT: JSON.stringify({
+            inset: 'var(--tw-ring-inset)',
+            width: theme(`ringWidth.${widthSuffix}`),
+            color: 'var(--tw-ring-color)',
+          })
+        }
+        values.inset[widthSuffix] = {
+          DEFAULT: JSON.stringify({
+            inset: 'inset',
+            width: theme(`ringWidth.${widthSuffix}`),
+            color: 'var(--tw-ring-color)',
+          })
+        }
+
+        for (const color in flattenedColors) {
+          values[widthSuffix][color] = JSON.stringify({
+            inset: 'var(--tw-ring-inset)',
+            width: theme(`ringWidth.${widthSuffix}`),
+            color: flattenedColors[color],
+          })
+          values.inset[widthSuffix][color] = JSON.stringify({
+            inset: 'inset',
+            width: theme(`ringWidth.${widthSuffix}`),
+            color: flattenedColors[color],
+          })
+        }
+      }
+
+
+      // MATCH
+      matchUtilities(
+        {
+          ring: value => ({
+            [variables.width]: value,
+            ...apply(`ring-sh-[${value}]`),
+          })
+        },
+        {
+          values: theme('ringWidth'),
+        }
+      )
+
+      matchUtilities(
+        {
+          'ring-sh': (value, { modifier }) => {
+            let inset = values.DEFAULT.inset,
+                width = values.DEFAULT.width,
+                color = values.DEFAULT.color
+            try {
+              const parsed = JSON.parse(value)
+              inset = parsed.inset
+              width = parsed.width
+              color = parsed.color
+            } catch (e) {
+              const values = value.split(' ')
+
+              switch (values.length) {
+                case 3:
+                  inset = values[0]
+                  width = values[1]
+                  color = values[2]
+                  break
+                case 2:
+                  width = values[0]
+                  color = values[1]
+                  break
+                default:
+                  width = values[0]
+                  break
+              }
+            }
+
+            return {
+              ...(inset !== `var(${variables.inset})` ? { [variables.inset]: inset } : undefined),
+              ...(color !== `var(${variables.color})` ? { [variables.color]: color } : undefined),
+              [variables.width]: width,
+              '--tw-ring-shadow': `var(${variables.inset}) 0 0 0 calc(var(${variables.width}) + var(--tw-ring-offset-width)) var(${variables.color})`,
+              boxShadow: 'var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)',
+            }
+          }
+        },
+        {
+          values: flattenColorPalette(values),
+          modifiers: theme('opacity'),
         }
       )
     }
@@ -745,9 +907,9 @@ const cqwRE = /(\d+)cqw/g
 const vPercentRE = /(\d+)v%/g
 const cqPercentRE = /(\d+)cq%/g
 
-export function createSpaceToggleFns ({ namespace, whitespace }: { namespace: string, whitespace: ' ' | '/**/' }) {
-  const toNamespaced = (variable: string) => `--${namespace}-${variable}`,
-        toNamespacedNot = (variable: string) => `--${namespace}-not-${variable}`,
+export function createSpaceToggleFns (variableNamespace: string) {
+  const toNamespaced = (variable: string) => `--${variableNamespace}-${variable}`,
+        toNamespacedNot = (variable: string) => `--${variableNamespace}-not-${variable}`,
         toOr = (...variables: string[]) => variables
           .slice()
           .reverse()
@@ -762,8 +924,8 @@ export function createSpaceToggleFns ({ namespace, whitespace }: { namespace: st
           .join(' '),
         toVar = (variable: string) => `var(${toNamespaced(variable)})`,
         toCondition = (variable: string, value: boolean) => ({
-          [toNamespaced(variable)]: value ? whitespace : 'initial',
-          [toNamespacedNot(variable)]: value ? 'initial' : whitespace,
+          [toNamespaced(variable)]: value ? ' ' : 'initial',
+          [toNamespacedNot(variable)]: value ? 'initial' : ' ',
         }),
         toValue = (...conditionsOrResult: string[]) => conditionsOrResult.join(' ')
 
@@ -778,7 +940,7 @@ export function createSpaceToggleFns ({ namespace, whitespace }: { namespace: st
   }
 }
 
-function createToGridValues ({ maxGridTemplate }: { maxGridTemplate: number }) {
+function createToGridValues (maxGridTemplate: number) {
   return (template: 'cols' | 'rows') => {
     return new Array(maxGridTemplate)
       .fill(0)
@@ -803,3 +965,7 @@ function my (value: string) {
     marginBottom: value,
   }
 }
+
+const widthRE = /length:(.*?)(?:$|inset:|color:)/
+const insetRE = /inset:(.*?)(?:$|color:)/
+const colorRE = /color:(.*)/

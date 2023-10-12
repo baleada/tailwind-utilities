@@ -329,10 +329,12 @@ export function renderTests () {
 
 function toChildLabel (utility: string, variant: string) {
   return `${utility } `
+    // @ts-expect-error
     + (window.variants.includes(variant) ? ` (${variant} parent)` : ` (${variant})`)
 }
 
 function toParentLabel (utility: string, variant: string) {
+  // @ts-expect-error
   return window.variants.includes(variant)
     ? `${variant} ${utility}`
     : `${utility} (${variant})`

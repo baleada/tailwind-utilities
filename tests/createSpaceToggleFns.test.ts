@@ -3,48 +3,46 @@ import * as assert from 'uvu/assert'
 import { createSpaceToggleFns } from '../src'
 
 type Context = {
-  namespace: string,
-  whitespace: ' ' | '/**/',
+  variableNamespace: string,
 }
 const suite = createSuite<Context>('createSpaceToggleFns')
 suite.before(context => {
-  context.namespace = 'baleada'
-  context.whitespace = ' '
+  context.variableNamespace = 'baleada'
 })
 
-suite(`creates toNamespaced`, ({ namespace, whitespace }) => {
-  const { toNamespaced } = createSpaceToggleFns({ namespace, whitespace })
+suite(`creates toNamespaced`, ({ variableNamespace }) => {
+  const { toNamespaced } = createSpaceToggleFns(variableNamespace)
 
   assert.is(toNamespaced('a'), '--baleada-a')
 })
 
-suite(`creates toOr`, ({ namespace, whitespace }) => {
-  const { toOr } = createSpaceToggleFns({ namespace, whitespace })
+suite(`creates toOr`, ({ variableNamespace }) => {
+  const { toOr } = createSpaceToggleFns(variableNamespace)
 
   assert.is(toOr('a'), 'var(--baleada-a)')
   assert.is(toOr('a', 'b', 'c'), 'var(--baleada-a, var(--baleada-b, var(--baleada-c)))')
 })
 
-suite(`creates toAnd`, ({ namespace, whitespace }) => {
-  const { toAnd } = createSpaceToggleFns({ namespace, whitespace })
+suite(`creates toAnd`, ({ variableNamespace }) => {
+  const { toAnd } = createSpaceToggleFns(variableNamespace)
 
   assert.is(toAnd('a'), 'var(--baleada-a)')
   assert.is(toAnd('a', 'b', 'c'), 'var(--baleada-a) var(--baleada-b) var(--baleada-c)')
 })
 
-suite(`creates toVar`, ({ namespace, whitespace }) => {
-  const { toVar } = createSpaceToggleFns({ namespace, whitespace })
+suite(`creates toVar`, ({ variableNamespace }) => {
+  const { toVar } = createSpaceToggleFns(variableNamespace)
 
   assert.is(toVar('a'), 'var(--baleada-a)')
 })
 
-suite(`creates toCondition`, ({ namespace, whitespace }) => {
-  const { toCondition } = createSpaceToggleFns({ namespace, whitespace })
+suite(`creates toCondition`, ({ variableNamespace }) => {
+  const { toCondition } = createSpaceToggleFns(variableNamespace)
 
   assert.equal(
     toCondition('a', true),
     {
-      '--baleada-a': whitespace,
+      '--baleada-a': ' ',
       '--baleada-not-a': 'initial',
     }
   )
@@ -53,13 +51,13 @@ suite(`creates toCondition`, ({ namespace, whitespace }) => {
     toCondition('a', false),
     {
       '--baleada-a': 'initial',
-      '--baleada-not-a': whitespace,
+      '--baleada-not-a': ' ',
     }
   )
 })
 
-suite(`creates toValue`, ({ namespace, whitespace }) => {
-  const { toValue } = createSpaceToggleFns({ namespace, whitespace })
+suite(`creates toValue`, ({ variableNamespace }) => {
+  const { toValue } = createSpaceToggleFns(variableNamespace)
 
   assert.is(toValue('var(--baleada-a)', 'blue'), 'var(--baleada-a) blue')
 })
