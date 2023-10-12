@@ -36,7 +36,7 @@
   },
   "homepage": "https://baleada.dev",
   "devDependencies": {
-    "@baleada/prepare": "^0.5.30",
+    "@baleada/prepare": "^0.5.45",
     "esbuild": "^0.15.13",
     "esbuild-register": "^3.3.3",
     "postcss": "^8.4.21",

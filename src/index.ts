@@ -1,17 +1,6 @@
 import createPlugin from 'tailwindcss/plugin'
-// import flattenColorPalette from 'tailwindcss/src/util/flattenColorPalette'
-
-const flattenColorPalette = (colors) =>
-  Object.assign(
-    {},
-    ...Object.entries(colors ?? {}).flatMap(([color, values]) =>
-      typeof values == 'object'
-        ? Object.entries(flattenColorPalette(values)).map(([number, hex]) => ({
-            [color + (number === 'DEFAULT' ? '' : `-${number}`)]: hex,
-          }))
-        : [{ [`${color}`]: values }]
-    )
-  )
+import flattenColorPalette from 'tailwindcss/src/util/flattenColorPalette.js'
+import withAlphaVariable from 'tailwindcss/src/util/withAlphaVariable.js'
 
 export type UtilitiesOptions = {
   variableNamespace?: string,
@@ -59,7 +48,7 @@ type DeepRequired<Object extends Record<any, any>> = {
 export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) => {
   const { maxGridTemplate, variableNamespace } = { ...defaultOptions, ...options }
   
-  return ({ addBase, addUtilities, matchUtilities, theme, config }) => {
+  return ({ addBase, addUtilities, matchUtilities, theme, config, corePlugins }) => {
     const prefix = config('prefix') as string,
           apply = createApply(prefix),
           { toNamespaced, toOr, toAnd, toVar, toCondition, toValue } = createSpaceToggleFns(variableNamespace),
@@ -708,6 +697,7 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
         width: `--${variableNamespace}-ring-width`,
         inset: `--tw-ring-inset`,
         color: `--tw-ring-color`,
+        opacity: `--tw-ring-opacity`,
       }
 
       addBase({
@@ -801,10 +791,10 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
           values: theme('ringWidth'),
         }
       )
-
+      
       matchUtilities(
         {
-          'ring-sh': (value, { modifier }) => {
+          'ring-sh': (value, { modifier: opacity }) => {
             let inset = values.DEFAULT.inset,
                 width = values.DEFAULT.width,
                 color = values.DEFAULT.color
@@ -833,8 +823,25 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
             }
 
             return {
-              ...(inset !== `var(${variables.inset})` ? { [variables.inset]: inset } : undefined),
-              ...(color !== `var(${variables.color})` ? { [variables.color]: color } : undefined),
+              ...(
+                inset !== `var(${variables.inset})`
+                  ? { [variables.inset]: inset }
+                  : undefined
+              ),
+              ...(
+                color !== `var(${variables.color})`
+                  ? withAlphaVariable({
+                    color,
+                    property: '--tw-ring-color',
+                    variable: '--tw-ring-opacity'
+                  })
+                  : undefined
+              ),
+              ...(
+                (opacity && corePlugins('ringOpacity'))
+                  ? { [variables.opacity]: opacity }
+                  : undefined
+              ),
               [variables.width]: width,
               '--tw-ring-shadow': `var(${variables.inset}) 0 0 0 calc(var(${variables.width}) + var(--tw-ring-offset-width)) var(${variables.color})`,
               boxShadow: 'var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)',
