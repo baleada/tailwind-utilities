@@ -804,7 +804,7 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
               width = parsed.width
               color = parsed.color
             } catch (e) {
-              const values = value.split(' ')
+              const values = value.split(multipleArbitraryValuesSeparator)
 
               switch (values.length) {
                 case 3:
@@ -816,7 +816,7 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
                   width = values[0]
                   color = values[1]
                   break
-                default:
+                case 1:
                   width = values[0]
                   break
               }
@@ -974,6 +974,4 @@ function my (value: string) {
   }
 }
 
-const widthRE = /length:(.*?)(?:$|inset:|color:)/
-const insetRE = /inset:(.*?)(?:$|color:)/
-const colorRE = /color:(.*)/
+const multipleArbitraryValuesSeparator = ';' as const

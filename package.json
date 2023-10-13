@@ -23,7 +23,7 @@
   },
   "keywords": [
     "baleada",
-    "tailwind ancestor variants"
+    "tailwind utilities"
   ],
   "author": {
     "name": "Alex Vipond",
@@ -37,8 +37,8 @@
   "homepage": "https://baleada.dev",
   "devDependencies": {
     "@baleada/prepare": "^0.5.45",
-    "esbuild": "^0.15.13",
-    "esbuild-register": "^3.3.3",
+    "esbuild": "^0.19.4",
+    "esbuild-register": "^3.5.0",
     "postcss": "^8.4.21",
     "rollup": "^3.2.5",
     "tslib": "^2.4.1",
@@ -48,7 +48,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.20.13",
-    "tailwindcss": "^3.2.6"
+    "tailwindcss": "^3.3.3"
   },
   "sideEffects": false
 }

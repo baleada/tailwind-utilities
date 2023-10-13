@@ -229,20 +229,26 @@
         </div>
       </div>
       
-      <!-- If passing arbitrary value, it can be
+      <!-- If passing arbitrary value, it can be semicolon-separated:
         - inset + width + color
         - width + color
       -->
       <div class="flex-col max-w-md gap-6">
         <div class="flex-col gap-2">
-          <code>ring-sh-[inset_5px_rebeccapurple]</code>
-          <div class="rounded d-24 ring-sh-[inset_5px_rebeccapurple]"></div>
+          <code>ring-sh-[inset;5px;rebeccapurple]</code>
+          <div class="rounded d-24 ring-sh-[inset;5px;rebeccapurple]"></div>
         </div>
       </div>
       <div class="flex-col max-w-md gap-6">
         <div class="flex-col gap-2">
-          <code>ring-sh-[5px_rebeccapurple]</code>
-          <div class="rounded d-24 ring-sh-[5px_rebeccapurple]"></div>
+          <code>ring-sh-[5px;rebeccapurple]</code>
+          <div class="rounded d-24 ring-sh-[5px;rebeccapurple]"></div>
+        </div>
+      </div>
+      <div class="flex-col max-w-md gap-6">
+        <div class="flex-col gap-2">
+          <code>ring-sh-[inset;calc(1px_*_5);rebeccapurple]</code>
+          <div class="rounded d-24 ring-sh-[inset;calc(1px_*_5);rebeccapurple]"></div>
         </div>
       </div>
 
@@ -269,8 +275,8 @@
       </div>
       <div class="flex-col max-w-md gap-6">
         <div class="flex-col gap-2">
-          <code>ring-sh-[5px_rebeccapurple]/50</code>
-          <div class="rounded d-24 ring-sh-[5px_rebeccapurple]/50"></div>
+          <code>ring-sh-[5px;rebeccapurple]/50</code>
+          <div class="rounded d-24 ring-sh-[5px;rebeccapurple]/50"></div>
         </div>
       </div>
     </div>
