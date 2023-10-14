@@ -709,6 +709,11 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
             
       // VALUES
       const values: Record<any, any> = { inset: {} },
+            defaults = {
+              inset: 'var(--tw-ring-inset)',
+              width: (theme(`ringWidth.DEFAULT`) || '0') as string,
+              color: 'var(--tw-ring-color)',
+            },
             widths = theme('ringWidth'),
             flattenedColors = flattenColorPalette(theme('colors'))
             
@@ -722,20 +727,15 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
 
       for (const widthSuffix in widths) {
         if (widthSuffix === 'DEFAULT') {
-          values.DEFAULT = JSON.stringify({
-            inset: 'var(--tw-ring-inset)',
-            width: theme(`ringWidth.DEFAULT`),
-            color: 'var(--tw-ring-color)',
-          })
+          values.DEFAULT = JSON.stringify(defaults)
           values.inset.DEFAULT = JSON.stringify({
+            ...defaults,
             inset: 'inset',
-            width: theme(`ringWidth.DEFAULT`),
-            color: 'var(--tw-ring-color)',
           })
 
           for (const color in flattenedColors) {
             values[color] = JSON.stringify({
-              inset: 'var(--tw-ring-inset)',
+              inset: defaults.inset,
               width: theme(`ringWidth.${widthSuffix}`),
               color: flattenedColors[color],
             })
@@ -751,22 +751,21 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
 
         values[widthSuffix] = {
           DEFAULT: JSON.stringify({
-            inset: 'var(--tw-ring-inset)',
+            ...defaults,
             width: theme(`ringWidth.${widthSuffix}`),
-            color: 'var(--tw-ring-color)',
           })
         }
         values.inset[widthSuffix] = {
           DEFAULT: JSON.stringify({
+            color: defaults.color,
             inset: 'inset',
             width: theme(`ringWidth.${widthSuffix}`),
-            color: 'var(--tw-ring-color)',
           })
         }
 
         for (const color in flattenedColors) {
           values[widthSuffix][color] = JSON.stringify({
-            inset: 'var(--tw-ring-inset)',
+            inset: defaults.inset,
             width: theme(`ringWidth.${widthSuffix}`),
             color: flattenedColors[color],
           })
@@ -795,9 +794,9 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
       matchUtilities(
         {
           'ring-sh': (value, { modifier: opacity }) => {
-            let inset = values.DEFAULT.inset,
-                width = values.DEFAULT.width,
-                color = values.DEFAULT.color
+            let inset = defaults.inset,
+                width = defaults.width,
+                color = defaults.color
             try {
               const parsed = JSON.parse(value)
               inset = parsed.inset
