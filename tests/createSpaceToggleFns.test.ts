@@ -1,6 +1,6 @@
 import { suite as createSuite } from 'uvu'
 import * as assert from 'uvu/assert'
-import { createSpaceToggleFns } from '../src'
+import { createSpaceToggleFns } from '../lib'
 
 type Context = {
   variableNamespace: string,

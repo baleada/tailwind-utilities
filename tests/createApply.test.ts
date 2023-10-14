@@ -1,6 +1,6 @@
 import { suite as createSuite } from 'uvu'
 import * as assert from 'uvu/assert'
-import { createApply } from '../src/'
+import { createApply } from '../lib/'
 
 const suite = createSuite('createApply')
 
