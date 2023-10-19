@@ -702,7 +702,7 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
 
       addBase({
         '*, ::before, ::after': {
-          [variables.width]: '0',
+          [variables.width]: (theme(`ringWidth.DEFAULT`) || '0'),
         }
       })
 
@@ -711,7 +711,7 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
       const values: Record<any, any> = { inset: {} },
             defaults = {
               inset: 'var(--tw-ring-inset)',
-              width: (theme(`ringWidth.DEFAULT`) || '0') as string,
+              width: `var(${variables.width})`,
               color: 'var(--tw-ring-color)',
             },
             widths = theme('ringWidth'),
@@ -719,14 +719,13 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
             
       for (const color in flattenedColors) {
         values[color] = JSON.stringify({
-          width: theme(`ringWidth.DEFAULT`),
-          inset: 'var(--tw-ring-inset)',
+          ...defaults,
           color: flattenedColors[color],
         })
       }
 
-      for (const widthSuffix in widths) {
-        if (widthSuffix === 'DEFAULT') {
+      for (const width in widths) {
+        if (width === 'DEFAULT') {
           values.DEFAULT = JSON.stringify(defaults)
           values.inset.DEFAULT = JSON.stringify({
             ...defaults,
@@ -735,13 +734,13 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
 
           for (const color in flattenedColors) {
             values[color] = JSON.stringify({
-              inset: defaults.inset,
-              width: theme(`ringWidth.${widthSuffix}`),
+              ...defaults,
+              width: theme(`ringWidth.${width}`),
               color: flattenedColors[color],
             })
             values.inset[color] = JSON.stringify({
               inset: 'inset',
-              width: theme(`ringWidth.${widthSuffix}`),
+              width: theme(`ringWidth.${width}`),
               color: flattenedColors[color],
             })
           }
@@ -749,29 +748,29 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
           continue
         }
 
-        values[widthSuffix] = {
+        values[width] = {
           DEFAULT: JSON.stringify({
             ...defaults,
-            width: theme(`ringWidth.${widthSuffix}`),
+            width: theme(`ringWidth.${width}`),
           })
         }
-        values.inset[widthSuffix] = {
+        values.inset[width] = {
           DEFAULT: JSON.stringify({
-            color: defaults.color,
+            ...defaults,
             inset: 'inset',
-            width: theme(`ringWidth.${widthSuffix}`),
+            width: theme(`ringWidth.${width}`),
           })
         }
 
         for (const color in flattenedColors) {
-          values[widthSuffix][color] = JSON.stringify({
-            inset: defaults.inset,
-            width: theme(`ringWidth.${widthSuffix}`),
+          values[width][color] = JSON.stringify({
+            ...defaults,
+            width: theme(`ringWidth.${width}`),
             color: flattenedColors[color],
           })
-          values.inset[widthSuffix][color] = JSON.stringify({
+          values.inset[width][color] = JSON.stringify({
             inset: 'inset',
-            width: theme(`ringWidth.${widthSuffix}`),
+            width: theme(`ringWidth.${width}`),
             color: flattenedColors[color],
           })
         }
@@ -783,7 +782,7 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
         {
           ring: value => ({
             [variables.width]: value,
-            ...apply(`ring-sh-[${value}]`),
+            ...apply(`ring-sh-[var(${variables.inset});${value};var(${variables.color})]`),
           })
         },
         {
@@ -800,8 +799,8 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
             try {
               const parsed = JSON.parse(value)
               inset = parsed.inset
-              width = parsed.width
-              color = parsed.color
+              if (parsed.width !== theme('ringWidth.DEFAULT') as string) width = parsed.width
+              if (parsed.color !== theme('ringColor.DEFAULT') as string) color = parsed.color
             } catch (e) {
               const values = value.split(multipleArbitraryValuesSeparator)
 
@@ -823,25 +822,28 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
 
             return {
               ...(
-                inset !== `var(${variables.inset})`
-                  ? { [variables.inset]: inset }
-                  : undefined
+                inset === `var(${variables.inset})`
+                  ? undefined
+                  : { [variables.inset]: inset }
               ),
               ...(
-                color !== `var(${variables.color})`
-                  ? withAlphaVariable({
+                color === `var(${variables.color})`
+                  ? undefined
+                  : withAlphaVariable({
                     color,
                     property: '--tw-ring-color',
                     variable: '--tw-ring-opacity'
                   })
-                  : undefined
               ),
               ...(
                 (opacity && corePlugins('ringOpacity'))
                   ? { [variables.opacity]: opacity }
                   : undefined
               ),
-              [variables.width]: width,
+              ...(width === `var(${variables.width})`
+                ? undefined
+                : { [variables.width]: width }
+              ),
               '--tw-ring-offset-shadow': 'var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color)',
               '--tw-ring-shadow': `var(${variables.inset}) 0 0 0 calc(var(${variables.width}) + var(--tw-ring-offset-width)) var(${variables.color})`,
               boxShadow: 'var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)',
@@ -851,6 +853,147 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
         {
           values: flattenColorPalette(values),
           modifiers: theme('opacity'),
+        }
+      )
+    }
+    
+    
+    // TRANSITION SHORTHAND
+    {
+      // BASE
+      const variables = {
+        property: `--${variableNamespace}-transition-property`,
+        duration: `--${variableNamespace}-transition-duration`,
+        timing: `--${variableNamespace}-transition-timing-function`,
+      }
+
+      addBase({
+        '*, ::before, ::after': {
+          [variables.property]: theme('transitionProperty.DEFAULT'),
+          [variables.duration]: theme('transitionDuration.DEFAULT') || '0ms',
+          [variables.timing]: theme('transitionTimingFunction.DEFAULT'),
+        }
+      })
+
+            
+      // VALUES
+      const values: Record<any, any> = {},
+            defaults = {
+              property: `var(${variables.property})`,
+              duration: `var(${variables.duration})`,
+            },
+            properties = theme('transitionProperty'),
+            durations = theme('transitionDuration')
+
+      for (const duration in durations) {
+        values[duration] = JSON.stringify({
+          ...defaults,
+          duration: durations[duration],
+        })
+      }
+
+      for (const property in properties) {
+        if (property === 'DEFAULT') {
+          values.DEFAULT = JSON.stringify(defaults)
+
+          for (const duration in durations) {
+            values[property] = JSON.stringify({
+              property: properties[property],
+              duration: durations[duration],
+            })
+          }
+
+          continue
+        }
+
+        values[property] = {
+          DEFAULT: JSON.stringify({
+            ...defaults,
+            property: properties[property],
+          })
+        }
+
+        for (const duration in durations) {
+          values[property][duration] = JSON.stringify({
+            property: properties[property],
+            duration: durations[duration],
+          })
+        }
+      }
+
+      matchUtilities(
+        {
+          transition: value => ({
+            [variables.property]: value,
+            ...apply(`transition-sh-[${value};var(${variables.duration})]`),
+          })
+        },
+        {
+          values: theme('transitionProperty'),
+        }
+      )
+
+      matchUtilities(
+        {
+          duration: value => ({
+            [variables.duration]: value,
+            ...apply(`transition-sh-[var(${variables.property});${value}]`),
+          })
+        },
+        {
+          values: theme('transitionDuration'),
+        }
+      )
+      
+      matchUtilities(
+        {
+          'transition-sh': (value, { modifier: timing }) => {
+            let property = defaults.property,
+                duration = defaults.duration
+
+            try {
+              const parsed = JSON.parse(value)
+              if (parsed.property !== theme('transitionProperty.DEFAULT') as string) property = parsed.property
+              if (parsed.duration !== theme('transitionDuration.DEFAULT') as string) duration = parsed.duration
+            } catch (e) {
+              const values = value.split(multipleArbitraryValuesSeparator)
+
+              switch (values.length) {
+                case 2:
+                  property = values[0]
+                  duration = values[1]
+                  break
+                case 1:
+                  duration = values[0]
+                  break
+              }
+            }
+
+            return {
+              ...(
+                property === `var(${variables.property})`
+                  ? undefined
+                  : { [variables.property]: property }
+              ),
+              ...(
+                duration === `var(${variables.duration})`
+                  ? undefined
+                  : { [variables.duration]: duration }
+              ),
+              ...(
+                (timing && timing === `var(${variables.timing})`)
+                  ? undefined
+                  : { [variables.timing]: timing }
+              ),
+              transitionProperty: `var(${variables.property})`,
+              transitionDuration: `var(${variables.duration})`,
+              transitionTimingFunction: `var(${variables.timing})`,
+            }
+          }
+        },
+        {
+          values: flattenColorPalette(values),
+          modifiers: theme('transitionTimingFunction'),
         }
       )
     }

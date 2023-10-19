@@ -230,8 +230,8 @@
       </div>
       
       <!-- If passing arbitrary value, it can be semicolon-separated:
-        - inset + width + color
-        - width + color
+        - property + duration
+        - duration
       -->
       <div class="flex-col max-w-md gap-6">
         <div class="flex-col gap-2">
@@ -277,6 +277,86 @@
         <div class="flex-col gap-2">
           <code>ring-sh-[5px;rebeccapurple]/50</code>
           <div class="rounded d-24 ring-sh-[5px;rebeccapurple]/50"></div>
+        </div>
+      </div>
+    </div>
+  </details>
+  <details class="flex-col p-6">
+    <summary class="text-sm font-bold text-indigo-600 uppercase">Transition shorthand utilities</summary>
+
+    <div class="flex-col max-w-md gap-6">
+      <!-- Has default -->
+      <div class="flex-col max-w-md gap-6">
+        <div class="flex-col gap-2">
+          <code>transition-sh</code>
+          <div class="bg-indigo-400 rounded d-24 hover:bg-indigo-800 hover:opacity-20 transition-sh"></div>
+        </div>
+      </div>
+
+      <!-- Can pass one of anything -->
+      <div class="flex-col max-w-md gap-6">
+        <div class="flex-col gap-2">
+          <code>transition-sh-opacity</code>
+          <div class="bg-indigo-400 rounded d-24 hover:bg-indigo-800 hover:opacity-20 transition-sh-opacity"></div>
+        </div>
+      </div>
+      <div class="flex-col max-w-md gap-6">
+        <div class="flex-col gap-2">
+          <code>transition-sh-500</code>
+          <div class="bg-indigo-400 rounded d-24 hover:bg-indigo-800 hover:opacity-20 transition-sh-500"></div>
+        </div>
+      </div>
+
+      <!-- If passing two, it must be property + duration -->
+      <div class="flex-col max-w-md gap-6">
+        <div class="flex-col gap-2">
+          <code>transition-sh-opacity-500</code>
+          <div class="bg-indigo-400 rounded d-24 hover:bg-indigo-800 hover:opacity-20 transition-sh-opacity-500"></div>
+        </div>
+      </div>
+      
+      <!-- If passing arbitrary value, it can be semicolon-separated:
+        - property + duration
+        - duration
+      -->
+      <div class="flex-col max-w-md gap-6">
+        <div class="flex-col gap-2">
+          <code>transition-sh-[opacity;1000ms]</code>
+          <div class="rounded d-24 bg-indigo-400 hover:bg-indigo-800 hover:opacity-20 transition-sh-[opacity;1000ms]"></div>
+        </div>
+      </div>
+      <div class="flex-col max-w-md gap-6">
+        <div class="flex-col gap-2">
+          <code>transition-sh-[1000ms]</code>
+          <div class="rounded d-24 bg-indigo-400 hover:bg-indigo-800 hover:opacity-20 transition-sh-[1000ms]"></div>
+        </div>
+      </div>
+
+      <!-- works with tailwind built-ins -->
+      <div class="flex-col max-w-md gap-6">
+        <div class="flex-col gap-2">
+          <code>transition-sh duration-500</code>
+          <div class="duration-500 bg-indigo-400 rounded d-24 hover:bg-indigo-800 hover:opacity-20 transition-sh"></div>
+        </div>
+      </div>
+      <div class="flex-col max-w-md gap-6">
+        <div class="flex-col gap-2">
+          <code>transition-sh-opacity-500 sm:transition-sh-colors-300</code>
+          <div class="bg-indigo-400 rounded d-24 hover:bg-indigo-800 hover:opacity-20 transition-sh-opacity-500 sm:transition-sh-colors-300"></div>
+        </div>
+      </div>
+      
+      <!-- works with timing modifiers -->
+      <div class="flex-col max-w-md gap-6">
+        <div class="flex-col gap-2">
+          <code>transition-sh-opacity-500/in-out</code>
+          <div class="bg-indigo-400 rounded d-24 hover:bg-indigo-800 hover:opacity-20 transition-sh-opacity-500/in-out"></div>
+        </div>
+      </div>
+      <div class="flex-col max-w-md gap-6">
+        <div class="flex-col gap-2">
+          <code>transition-sh-[opacity;1000ms]/[steps(3,end)]</code>
+          <div class="rounded d-24 bg-indigo-400 hover:bg-indigo-800 hover:opacity-20 transition-sh-[opacity;500ms]/[steps(3,end)]"></div>
         </div>
       </div>
     </div>
