@@ -925,7 +925,7 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
         {
           transition: value => ({
             [variables.property]: value,
-            ...apply(`transition-sh-[${value};var(${variables.duration})]`),
+            [variables.duration]: defaults.duration,
           })
         },
         {
@@ -937,7 +937,7 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
         {
           duration: value => ({
             [variables.duration]: value,
-            ...apply(`transition-sh-[var(${variables.property});${value}]`),
+            [variables.property]: defaults.property,
           })
         },
         {
