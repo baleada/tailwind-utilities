@@ -12,7 +12,7 @@ suite.before(async context => {
   await page.goto('http://localhost:5173')
 })
 
-const variants = ['flex', 'flex-col', 'grid'] as const
+const variants = ['flex', 'flex-col', 'grid', 'grid-sh'] as const
 const positions = ['absolute', 'fixed', 'sticky', 'relative'] as const
 const alignments = ['center', 'corner', 'edge'] as const
 const verticals = ['top', 'bottom'] as const
@@ -43,7 +43,7 @@ for (const alignment of alignments) {
                 : window.predicate.center[axis](element) && !window.predicate.center[axis === 'x' ? 'y': 'x'](element)
             }, [id, axis])
 
-            assert.ok(value)
+            assert.ok(value, id)
           })
         }
 
@@ -69,7 +69,7 @@ for (const alignment of alignments) {
                   : window.predicate.center[axis](element) && !window.predicate.center[axis === 'x' ? 'y': 'x'](element)
               }, [id, axis])
 
-              assert.ok(value, 'base')
+              assert.ok(value, `base ${id}`)
             })()
 
             await page.setViewportSize({ width: 640, height: 1000 })
@@ -86,7 +86,7 @@ for (const alignment of alignments) {
                   : window.predicate.center[axis](element) && !window.predicate.center[axis === 'x' ? 'y': 'x'](element)
               }, [id, axis])
 
-              assert.ok(value, 'sm')
+              assert.ok(value, `sm ${id}`)
             })()
 
             await page.setViewportSize({ width: 768, height: 1000 })
@@ -103,7 +103,7 @@ for (const alignment of alignments) {
                   : window.predicate.center[axis](element) && !window.predicate.center[axis === 'x' ? 'y': 'x'](element)
               }, [id, axis])
 
-              assert.ok(value, 'md')
+              assert.ok(value, `md ${id}`)
             })()
           })
         }
@@ -130,7 +130,7 @@ for (const alignment of alignments) {
                   : window.predicate.center[axis](element) && !window.predicate.center[axis === 'x' ? 'y': 'x'](element)
               }, [id, axis])
 
-              assert.ok(value, 'base')
+              assert.ok(value, `base ${id}`)
             })()
 
             await page.setViewportSize({ width: 640, height: 1000 })
@@ -147,7 +147,7 @@ for (const alignment of alignments) {
                   : !window.predicate.center[axis](element)
               }, [id, axis])
 
-              assert.ok(value, 'sm')
+              assert.ok(value, `sm ${id}`)
             })()
           })
         }
@@ -171,7 +171,7 @@ for (const alignment of alignments) {
                 : window.predicate.centerAll[variant][axis](element) && !window.predicate.centerAll[variant][axis === 'x' ? 'y': 'x'](element)
             }, [id, axis, variant])
 
-            assert.ok(value)
+            assert.ok(value, id)
           })
         }
 
@@ -197,7 +197,7 @@ for (const alignment of alignments) {
                   : window.predicate.centerAll.flex[axis](element) && !window.predicate.centerAll.flex[axis === 'x' ? 'y': 'x'](element)
               }, [id, axis])
 
-              assert.ok(value, 'base')
+              assert.ok(value, `base ${id}`)
             })()
 
             await page.setViewportSize({ width: 640, height: 1000 })
@@ -214,7 +214,7 @@ for (const alignment of alignments) {
                   : window.predicate.centerAll['flex-col'][axis](element) && !window.predicate.centerAll['flex-col'][axis === 'x' ? 'y': 'x'](element)
               }, [id, axis])
 
-              assert.ok(value, 'sm')
+              assert.ok(value, `sm ${id}`)
             })()
 
             await page.setViewportSize({ width: 768, height: 1000 })
@@ -231,7 +231,7 @@ for (const alignment of alignments) {
                   : window.predicate.centerAll.grid[axis](element) && !window.predicate.centerAll.grid[axis === 'x' ? 'y': 'x'](element)
               }, [id, axis])
 
-              assert.ok(value, 'md')
+              assert.ok(value, `md ${id}`)
             })()
           })
         }
@@ -254,7 +254,7 @@ for (const alignment of alignments) {
                 return window.predicate.corner[vertical][horizontal](element)
               }, [id, vertical, horizontal])
 
-              assert.ok(value)
+              assert.ok(value, id)
             })
           }
 
@@ -273,7 +273,7 @@ for (const alignment of alignments) {
                   return window.predicate.corner[vertical][horizontal](element)
                 }, [id, vertical, horizontal])
   
-                assert.ok(value, 'base')
+                assert.ok(value, `base ${id}`)
               })()
   
               await page.setViewportSize({ width: 640, height: 1000 })
@@ -285,7 +285,7 @@ for (const alignment of alignments) {
                   return window.predicate.corner[vertical][horizontal](element)
                 }, [id, vertical, horizontal])
   
-                assert.ok(value, 'sm')
+                assert.ok(value, `sm ${id}`)
               })()
   
               await page.setViewportSize({ width: 768, height: 1000 })
@@ -297,7 +297,7 @@ for (const alignment of alignments) {
                   return window.predicate.corner[vertical][horizontal](element)
                 }, [id, vertical, horizontal])
   
-                assert.ok(value, 'md')
+                assert.ok(value, `md ${id}`)
               })()
             })
           }
@@ -317,7 +317,7 @@ for (const alignment of alignments) {
                   return window.predicate.corner[vertical][horizontal](element)
                 }, [id, vertical, horizontal])
 
-                assert.ok(value, 'base')
+                assert.ok(value, `base ${id}`)
               })()
   
               await page.setViewportSize({ width: 640, height: 1000 })
@@ -329,7 +329,7 @@ for (const alignment of alignments) {
                   return window.predicate.corner.top.left(element)
                 }, [id, vertical, horizontal])
 
-                assert.ok(value, 'sm')
+                assert.ok(value, `sm ${id}`)
               })()
             })
           }
@@ -346,7 +346,7 @@ for (const alignment of alignments) {
                 return window.predicate.cornerAll[variant][vertical][horizontal](element)
               }, [id, vertical, horizontal, variant])
 
-              assert.ok(value)
+              assert.ok(value, id)
             })
           }
 
@@ -365,7 +365,7 @@ for (const alignment of alignments) {
                   return window.predicate.cornerAll.flex[vertical][horizontal](element)
                 }, [id, vertical, horizontal])
 
-                assert.ok(value, 'base')
+                assert.ok(value, `base ${id}`)
               })()
 
               await page.setViewportSize({ width: 640, height: 1000 })
@@ -377,7 +377,7 @@ for (const alignment of alignments) {
                   return window.predicate.cornerAll['flex-col'][vertical][horizontal](element)
                 }, [id, vertical, horizontal])
 
-                assert.ok(value, 'sm')
+                assert.ok(value, `sm ${id}`)
               })()
 
               await page.setViewportSize({ width: 768, height: 1000 })
@@ -389,7 +389,7 @@ for (const alignment of alignments) {
                   return window.predicate.cornerAll.grid[vertical][horizontal](element)
                 }, [id, vertical, horizontal])
 
-                assert.ok(value, 'md')
+                assert.ok(value, `md ${id}`)
               })()
             })
           }
@@ -412,7 +412,7 @@ for (const alignment of alignments) {
               return window.predicate.edge[direction](element)
             }, [id, direction])
 
-            assert.ok(value)
+            assert.ok(value, id)
           })
         }
 
@@ -431,7 +431,7 @@ for (const alignment of alignments) {
                 return window.predicate.edge[direction](element)
               }, [id, direction])
 
-              assert.ok(value, 'base')
+              assert.ok(value, `base ${id}`)
             })()
 
             await page.setViewportSize({ width: 640, height: 1000 })
@@ -443,7 +443,7 @@ for (const alignment of alignments) {
                 return window.predicate.edge[direction](element)
               }, [id, direction])
 
-              assert.ok(value, 'sm')
+              assert.ok(value, `sm ${id}`)
             })()
 
             await page.setViewportSize({ width: 768, height: 1000 })
@@ -455,7 +455,7 @@ for (const alignment of alignments) {
                 return window.predicate.edge[direction](element)
               }, [id, direction])
 
-              assert.ok(value, 'md')
+              assert.ok(value, `md ${id}`)
             })()
           })
         }
@@ -475,7 +475,7 @@ for (const alignment of alignments) {
                 return window.predicate.edge[direction](element)
               }, [id, direction])
 
-              assert.ok(value, 'base')
+              assert.ok(value, `base ${id}`)
             })()
 
             await page.setViewportSize({ width: 640, height: 1000 })
@@ -487,7 +487,7 @@ for (const alignment of alignments) {
                 return window.predicate.corner.top.left(element)
               }, [id])
 
-              assert.ok(value, 'sm')
+              assert.ok(value, `sm ${id}`)
             })()
           })
         }
@@ -504,7 +504,7 @@ for (const alignment of alignments) {
                     return window.predicate.edgeAll[variant][direction](element)
                   }, [id, direction, variant])
 
-            assert.ok(value)
+            assert.ok(value, id)
           })
         }
 
@@ -523,7 +523,7 @@ for (const alignment of alignments) {
                 return window.predicate.edgeAll.flex[direction](element)
               }, [id, direction])
 
-              assert.ok(value, 'base')
+              assert.ok(value, `base ${id}`)
             })()
 
             await page.setViewportSize({ width: 640, height: 1000 })
@@ -535,7 +535,7 @@ for (const alignment of alignments) {
                 return window.predicate.edgeAll['flex-col'][direction](element)
               }, [id, direction])
 
-              assert.ok(value, 'sm')
+              assert.ok(value, `sm ${id}`)
             })()
 
             await page.setViewportSize({ width: 768, height: 1000 })
@@ -547,7 +547,7 @@ for (const alignment of alignments) {
                 return window.predicate.edgeAll.grid[direction](element)
               }, [id, direction])
 
-              assert.ok(value, 'md')
+              assert.ok(value, `md ${id}`)
             })()
           })
         }

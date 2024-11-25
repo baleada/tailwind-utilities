@@ -226,7 +226,7 @@ export function renderTests () {
                     : { id: `${variant}-${alignment}-all-${axis}`, utility: `${alignment}-all-${axis}` },
                   { test, label, testParent, testChildren } = create()
 
-            testParent.classList.add(variant === 'grid' ? 'grid-cols-3' : variant)
+            testParent.classList.add(variant.startsWith('grid') ? 'grid-cols-3' : variant)
             testParent.classList.add(utility)
             testParent.id = id
 
@@ -259,7 +259,7 @@ export function renderTests () {
                     utility = `${alignment}-all-${vertical[0]}-${horizontal[0]}`,
                     { test, label, testParent, testChildren } = create()
 
-              testParent.classList.add(variant === 'grid' ? 'grid-cols-3' : variant)
+              testParent.classList.add(variant.startsWith('grid') ? 'grid-cols-3' : variant)
               testParent.classList.add(utility)
               testParent.id = id
 
@@ -291,7 +291,7 @@ export function renderTests () {
                   utility = `${alignment}-all-${direction[0]}`,
                   { test, label, testParent, testChildren } = create()
 
-            testParent.classList.add(variant === 'grid' ? 'grid-cols-3' : variant)
+            testParent.classList.add(variant.startsWith('grid') ? 'grid-cols-3' : variant)
             testParent.classList.add(utility)
             testParent.id = id
 
@@ -328,7 +328,7 @@ export function renderTests () {
 }
 
 function toChildLabel (utility: string, variant: string) {
-  return `${utility } `
+  return `${utility} `
     // @ts-expect-error
     + (window.variants.includes(variant) ? ` (${variant} parent)` : ` (${variant})`)
 }

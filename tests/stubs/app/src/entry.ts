@@ -1,7 +1,7 @@
 import './index.css'
 import { renderTests } from './render'
 
-window.variants = ['flex', 'flex-col', 'grid']
+window.variants = ['flex', 'flex-col', 'grid', 'grid-sh']
 window.positions = ['absolute', 'fixed', 'sticky', 'relative']
 window.alignments = ['center', 'corner', 'edge']
 window.verticals = ['top', 'bottom']
@@ -10,15 +10,15 @@ window.axes = ['both', 'x', 'y']
 
 window.predicate = {
   // @ts-expect-error
-  centerAll: { flex: {}, 'flex-col': {}, grid: {} },
+  centerAll: { flex: {}, 'flex-col': {}, grid: {}, 'grid-sh': {} },
   // @ts-expect-error
   center: {},
   // @ts-expect-error
-  cornerAll: { flex: { top: {}, bottom: {} }, 'flex-col': { top: {}, bottom: {} }, grid: { top: {}, bottom: {} } },
+  cornerAll: { flex: { top: {}, bottom: {} }, 'flex-col': { top: {}, bottom: {} }, grid: { top: {}, bottom: {} }, 'grid-sh': { top: {}, bottom: {} } },
   // @ts-expect-error
   corner: {},
   // @ts-expect-error
-  edgeAll: { flex: {}, 'flex-col': {}, grid: {} },
+  edgeAll: { flex: {}, 'flex-col': {}, grid: {}, 'grid-sh': {} },
   // @ts-expect-error
   edge: {},
 }
@@ -157,7 +157,10 @@ const GAP = 15
           childrenRects = [...children].map(child => child.getBoundingClientRect())
   
     return childrenRects.every(rect => rect.top + rect.height / 2 === parentRect.top + parentRect.height / 2)
-  }  
+  }
+
+  window.predicate.centerAll['grid-sh'].x = window.predicate.centerAll.grid.x
+  window.predicate.centerAll['grid-sh'].y = window.predicate.centerAll.grid.y
 }
 
 window.predicate.cornerAll.flex.top.left = parent => {
@@ -252,6 +255,11 @@ window.predicate.cornerAll.grid.bottom.left = parent => {
   )
 }
 
+window.predicate.cornerAll['grid-sh'].top.left = window.predicate.cornerAll.grid.top.left
+window.predicate.cornerAll['grid-sh'].top.right = window.predicate.cornerAll.grid.top.right
+window.predicate.cornerAll['grid-sh'].bottom.right = window.predicate.cornerAll.grid.bottom.right
+window.predicate.cornerAll['grid-sh'].bottom.left = window.predicate.cornerAll.grid.bottom.left
+
 window.predicate.edgeAll.flex.top = parent => {
   return window.predicate.edge.top(parent.children[1])
 }
@@ -343,6 +351,11 @@ window.predicate.edgeAll.grid.left = parent => {
     && childrenRects.every(({ top, height }) => top + height / 2 === parentRect.top + parentRect.height / 2)
   )
 }
+
+window.predicate.edgeAll['grid-sh'].top = window.predicate.edgeAll.grid.top
+window.predicate.edgeAll['grid-sh'].right = window.predicate.edgeAll.grid.right
+window.predicate.edgeAll['grid-sh'].bottom = window.predicate.edgeAll.grid.bottom
+window.predicate.edgeAll['grid-sh'].left = window.predicate.edgeAll.grid.left
 
 renderTests()
 

@@ -7,8 +7,6 @@ export type UtilitiesOptions = {
   maxGridTemplate?: number,
 }
 
-export type Utility = 'center' | 'corner' | 'edge' | 'dimension' | 'stretch' | 'gap modifiers'
-
 export function defineDimensionConfig (dimension: Record<string | number, string>): Record<string | number, string> {
   return dimension
 }
@@ -108,7 +106,8 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
             ...toCondition('flex-col', false),
             ...toCondition('grid', true),
             display: 'grid',
-            ...toGridTemplate(value as `cols-${number}` | `rows-${number}` | ''),
+            ...toGridTemplate(
+              value as `cols-${number}` | `rows-${number}` | ''),
             ...toGap(modifier),
           })
         },
@@ -119,6 +118,30 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
             ...toGridValues('cols'),
             ...toGridValues('rows'),
           }
+        }
+      )
+
+      // GRID SHORTHAND
+      matchUtilities(
+        {
+          'grid-sh': (value, { modifier }) => {
+            const [cols, rows] = (value || '').split('x')
+
+            return {
+              ...toCondition('flex', false),
+              ...toCondition('flex-row', false),
+              ...toCondition('flex-col', false),
+              ...toCondition('grid', true),
+              display: 'grid',
+              ...toGridTemplate(cols && `cols-${cols}` as `cols-${number}`),
+              ...toGridTemplate(rows && `rows-${rows}` as `rows-${number}`),
+              ...toGap(modifier),
+            }
+          }
+        },
+        {
+          ...matchUtilitiesOptions,
+          values: { DEFAULT: '' },
         }
       )
     }
@@ -161,7 +184,7 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
             ...my(toValue(
               toOr('flex-col'),
               'auto',
-            ))
+            )),
           },
           [`&:where(${absolute})`]: {
             top: toValue(
@@ -181,7 +204,7 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
               '-50%',
             ),
             ...apply('transform'),
-          }
+          },
         },
         '.center-x': {
           [`&:where(${alignable} > &)`]: {
@@ -641,6 +664,18 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
       })
     }
 
+
+    // OVERLAP
+    {
+      addUtilities({
+        '.overlap': {
+          [`&:where(${grid} > &)`]: {
+            ...apply('row-start-1 col-start-1'),
+          }
+        }
+      })
+    }
+
     
     // DIMENSION
     {
@@ -1001,19 +1036,34 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
 })
 
 const alignable = (() => {
-        const selectors = ['flex', 'flex-row', 'flex-col', 'grid'].reduce((alignable, variant) => {
+        const selectors = ['flex', 'flex-row', 'flex-col', 'grid', 'grid-sh'].reduce((alignable, variant) => {
           alignable.push(
             `\.${variant}`,
             `[class$=":${variant}"]`,
             `[class^="${variant}/"]`,
             `[class*=":${variant}/"]`
           )
+
+          if (variant === 'grid-sh') alignable.push('[class*="grid-sh-"]')
+
           return alignable
         }, [])
 
         return `:is(${selectors.join(', ')})`
       })(),
-      absolute = ':is(.absolute, .fixed, .sticky, [class$=":absolute"], [class$=":fixed"], [class$=":sticky"])'
+      absolute = ':is(.absolute, .fixed, .sticky, [class$=":absolute"], [class$=":fixed"], [class$=":sticky"])',
+      grid = ['grid', 'grid-sh'].reduce((grid, variant) => {
+        grid.push(
+          `\.${variant}`,
+          `[class$=":${variant}"]`,
+          `[class^="${variant}/"]`,
+          `[class*=":${variant}/"]`
+        )
+
+        if (variant === 'grid-sh') grid.push('[class*="grid-sh-"]')
+
+        return grid
+      }, [])
 
 export function createApply (prefix: string) {
   return function apply (classes: string): { [statement: `@apply ${string}`]: Record<never, never> } {

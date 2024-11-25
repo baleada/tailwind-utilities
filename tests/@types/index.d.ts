@@ -1,5 +1,5 @@
 export type Globals = {
-  variants: ['flex', 'flex-col', 'grid'],
+  variants: ['flex', 'flex-col', 'grid', 'grid-sh'],
   positions: ['absolute', 'fixed', 'sticky', 'relative'],
   alignments: ['center', 'corner', 'edge'],
   verticals: ['top', 'bottom'],
@@ -19,6 +19,10 @@ export type Globals = {
         x: (parent: Element) => boolean,
         y: (parent: Element) => boolean,
       },
+      'grid-sh': {
+        x: (parent: Element) => boolean,
+        y: (parent: Element) => boolean,
+      }
     },
     center: {
       x: (child: Element) => boolean,
@@ -55,6 +59,16 @@ export type Globals = {
           right: (parent: Element) => boolean,
         },
       },
+      'grid-sh': {
+        top: {
+          left: (parent: Element) => boolean,
+          right: (parent: Element) => boolean,
+        },
+        bottom: {
+          left: (parent: Element) => boolean,
+          right: (parent: Element) => boolean,
+        },
+      }
     },
     corner: {
       top: {
@@ -80,6 +94,12 @@ export type Globals = {
         left: (parent: Element) => boolean
       },
       grid: {
+        top: (parent: Element) => boolean
+        right: (parent: Element) => boolean
+        bottom: (parent: Element) => boolean
+        left: (parent: Element) => boolean
+      },
+      'grid-sh': {
         top: (parent: Element) => boolean
         right: (parent: Element) => boolean
         bottom: (parent: Element) => boolean
