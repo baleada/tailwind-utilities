@@ -203,7 +203,7 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
               toOr('absolute', 'fixed', 'sticky'),
               '-50%',
             ),
-            ...apply('transform'),
+            translate: 'var(--tw-translate-x) var(--tw-translate-y)',
           },
         },
         '.center-x': {
@@ -230,7 +230,7 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
               toOr('absolute', 'fixed', 'sticky'),
               '-50%',
             ),
-            ...apply('transform'),
+            translate: 'var(--tw-translate-x) var(--tw-translate-y)',
           }
         },
         '.center-y': {
@@ -253,7 +253,7 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
               toOr('absolute', 'fixed', 'sticky'),
               '-50%',
             ),
-            ...apply('transform'),
+            translate: 'var(--tw-translate-x) var(--tw-translate-y)',
           }
         },
         '.center-all': {
@@ -497,7 +497,7 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
               toOr('absolute', 'fixed', 'sticky'),
               '-50%',
             ),
-            ...apply('transform'),
+            translate: 'var(--tw-translate-x) var(--tw-translate-y)',
           }
         },
         '.edge-r': {
@@ -537,7 +537,7 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
               toOr('absolute', 'fixed', 'sticky'),
               '-50%',
             ),
-            ...apply('transform'),
+            translate: 'var(--tw-translate-x) var(--tw-translate-y)',
           }
         },
         '.edge-b': {
@@ -577,7 +577,7 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
               toOr('absolute', 'fixed', 'sticky'),
               '-50%',
             ),
-            ...apply('transform'),
+            translate: 'var(--tw-translate-x) var(--tw-translate-y)',
           }
         },
         '.edge-l': {
@@ -604,7 +604,7 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
               toOr('absolute', 'fixed', 'sticky'),
               '-50%',
             ),
-            ...apply('transform'),
+            translate: 'var(--tw-translate-x) var(--tw-translate-y)',
           }
         },
         '.edge-all-t': {
