@@ -5,6 +5,7 @@ import withAlphaVariable from 'tailwindcss/src/util/withAlphaVariable.js'
 export type UtilitiesOptions = {
   variableNamespace?: string,
   maxGridTemplate?: number,
+  majorVersion?: 3 | 4,
 }
 
 export function defineDimensionConfig (dimension: Record<string | number, string>): Record<string | number, string> {
@@ -34,6 +35,7 @@ export function toStretchHeightTheme (stretchHeight: Record<string | number, str
 const defaultOptions: DeepRequired<UtilitiesOptions> = {
   variableNamespace: 'baleada',
   maxGridTemplate: 12,
+  majorVersion: 4,
 }
 
 type DeepRequired<Object extends Record<any, any>> = {
@@ -44,7 +46,7 @@ type DeepRequired<Object extends Record<any, any>> = {
  * https://baleada.dev/docs/utilities
  */
 export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) => {
-  const { maxGridTemplate, variableNamespace } = { ...defaultOptions, ...options }
+  const { maxGridTemplate, variableNamespace, majorVersion } = { ...defaultOptions, ...options }
   
   return ({ addBase, addUtilities, matchUtilities, theme, config, corePlugins }) => {
     const prefix = config('prefix') as string,
@@ -733,6 +735,8 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
         inset: `--tw-ring-inset`,
         color: `--tw-ring-color`,
         opacity: `--tw-ring-opacity`,
+        offsetWidth: '--tw-ring-offset-width',
+        offsetColor: '--tw-ring-offset-color',
       }
 
       addBase({
@@ -745,9 +749,9 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
       // VALUES
       const values: Record<any, any> = { inset: {} },
             defaults = {
-              inset: 'var(--tw-ring-inset)',
+              inset: `var(${variables.inset},)`,
               width: `var(${variables.width})`,
-              color: 'var(--tw-ring-color)',
+              color: `var(${variables.color})`,
             },
             widths = theme('ringWidth'),
             flattenedColors = flattenColorPalette(theme('colors'))
@@ -817,7 +821,7 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
         {
           ring: value => ({
             [variables.width]: value,
-            ...apply(`ring-sh-[var(${variables.inset});${value};var(${variables.color})]`),
+            ...apply(`ring-sh-[var(${variables.inset},);${value};var(${variables.color})]`),
           })
         },
         {
@@ -857,7 +861,7 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
 
             return {
               ...(
-                inset === `var(${variables.inset})`
+                inset === `var(${variables.inset},)`
                   ? undefined
                   : { [variables.inset]: inset }
               ),
@@ -866,22 +870,31 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
                   ? undefined
                   : withAlphaVariable({
                     color,
-                    property: '--tw-ring-color',
-                    variable: '--tw-ring-opacity'
+                    property: variables.color,
+                    variable: variables.opacity,
                   })
               ),
               ...(
-                (opacity && corePlugins('ringOpacity'))
+                (
+                  opacity
+                  && (
+                    majorVersion === 4
+                    || corePlugins?.('ringOpacity')
+                  )
+                )
                   ? { [variables.opacity]: opacity }
                   : undefined
               ),
-              ...(width === `var(${variables.width})`
-                ? undefined
-                : { [variables.width]: width }
+              ...(
+                width === `var(${variables.width})`
+                  ? undefined
+                  : { [variables.width]: width }
               ),
-              '--tw-ring-offset-shadow': 'var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color)',
-              '--tw-ring-shadow': `var(${variables.inset}) 0 0 0 calc(var(${variables.width}) + var(--tw-ring-offset-width)) var(${variables.color})`,
-              boxShadow: 'var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)',
+              '--tw-ring-offset-shadow': `var(${variables.inset},) 0 0 0 var(${variables.offsetWidth}) var(${variables.offsetColor})`,
+              '--tw-ring-shadow': `var(${variables.inset},) 0 0 0 calc(var(${variables.width}) + var(${variables.offsetWidth})) var(${variables.color}, currentColor)`,
+              boxShadow: majorVersion < 4
+                ? 'var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)'
+                : 'var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)',
             }
           }
         },
