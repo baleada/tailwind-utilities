@@ -1,7 +1,7 @@
 import { configureable } from '@baleada/prepare'
 
 const external = [
-        /tailwindcss\/plugin/,
+        /tailwindcss/,
       ],
       shared = new configureable.Rollup()
         .input('src/index.ts')
