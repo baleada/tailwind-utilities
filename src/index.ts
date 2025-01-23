@@ -737,7 +737,7 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
         opacity: `--tw-ring-opacity`,
         offsetWidth: '--tw-ring-offset-width',
         offsetColor: '--tw-ring-offset-color',
-      }
+      } as const
 
       addBase({
         '*, ::before, ::after': {
@@ -868,19 +868,20 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
               ...(
                 color === `var(${variables.color})`
                   ? undefined
-                  : withAlphaVariable({
-                    color,
-                    property: variables.color,
-                    variable: variables.opacity,
-                  })
+                  : majorVersion === 4
+                    ? {
+                      [variables.color]: `color-mix(in oklab, ${color} ${opacity * 100}%, transparent);`
+                    }
+                    : withAlphaVariable({
+                      color,
+                      property: variables.color,
+                      variable: variables.opacity,
+                    })
               ),
               ...(
                 (
-                  opacity
-                  && (
-                    majorVersion === 4
-                    || corePlugins?.('ringOpacity')
-                  )
+                  corePlugins?.('ringOpacity')
+                  && opacity
                 )
                   ? { [variables.opacity]: opacity }
                   : undefined
@@ -1100,6 +1101,7 @@ const spaceRE = / /g
 function toHeight(height: string) {
   return height
     .replace(vwRE, (_, value) => `${value}vh`)
+    .replace(dvwRE, (_, value) => `${value}dvh`)
     .replace(cqwRE, (_, value) => `${value}cqh`)
     .replace(vPercentRE, (_, value) => `${value}vh`)
     .replace(cqPercentRE, (_, value) => `${value}cqh`)
@@ -1108,6 +1110,7 @@ function toHeight(height: string) {
 function toWidth(width: string) {
   return width
     .replace(vhRE, (_, value) => `${value}vw`)
+    .replace(dvhRE, (_, value) => `${value}dvw`)
     .replace(cqhRE, (_, value) => `${value}cqw`)
     .replace(vPercentRE, (_, value) => `${value}vw`)
     .replace(cqPercentRE, (_, value) => `${value}cqw`)
@@ -1115,6 +1118,8 @@ function toWidth(width: string) {
 
 const vhRE = /(\d+)vh/g
 const vwRE = /(\d+)vw/g
+const dvhRE = /(\d+)dvh/g
+const dvwRE = /(\d+)dvw/g
 const cqhRE = /(\d+)cqh/g
 const cqwRE = /(\d+)cqw/g
 const vPercentRE = /(\d+)v%/g

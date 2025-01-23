@@ -5,6 +5,6 @@ const { plugin: utilities } = require('./lib/index.cjs')
 module.exports = {
   content: ['index.html', 'tests/stubs/app/src/**/*.ts'],
   plugins: [
-    utilities
+    utilities({ majorVersion: 3 })
   ]
 }
