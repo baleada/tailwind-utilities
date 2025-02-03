@@ -491,6 +491,10 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
             )),
           },
           [`&:where(${absolute})`]: {
+            top: toValue(
+              toOr('absolute', 'fixed', 'sticky'),
+              '0',
+            ),
             left: toValue(
               toOr('absolute', 'fixed', 'sticky'),
               '50%',
