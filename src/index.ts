@@ -825,7 +825,7 @@ export const plugin = createPlugin.withOptions((options: UtilitiesOptions = {}) 
         {
           ring: value => ({
             [variables.width]: value,
-            ...apply(`ring-sh-[var(${variables.inset},);${value};var(${variables.color})]`),
+            ...apply(`ring-sh-[var(${variables.inset},)|${value}|var(${variables.color})]`),
           })
         },
         {
@@ -1188,4 +1188,4 @@ function my (value: string) {
   }
 }
 
-const multipleArbitraryValuesSeparator = ';' as const
+const multipleArbitraryValuesSeparator = '|' as const
